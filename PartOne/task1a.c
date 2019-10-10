@@ -14,10 +14,8 @@ struct element** createProcesses(struct element** processList)
   for(i = 0; i < NUMBER_OF_JOBS; i++)
   {
     newProcess = generateProcess(); 
-    newProcess += i*sizeof(struct element**);
-    //printf("GENERATED PROCESS - ID: %x, Priority:%d\n", newProcess -> iProcessId, newProcess ->iPriority);
-    addLast(NULL, (struct element **)newProcess, (struct element **)newProcess);      
-    printf("Address of list start: %x, Address of process: %x, ID: %d\n", &processList, &newProcess, newProcess -> iProcessId);
+    addLast(NULL, (struct element **)newProcess + sizeof(struct element**), (struct element **)newProcess + sizeof(struct element**));      
+    printf("Address of list start: %x, Address of process: %x, ID: %d, Priority: %d\n", &processList, &newProcess, newProcess -> iProcessId, newProcess ->iPriority);
   }
   
   return processList;
