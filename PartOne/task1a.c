@@ -2,7 +2,10 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <stdlib.h>
+#include "coursework.h"
+#include "linkedlist.h"
 
+// Implementation of the FCFS scheduling algorithm (by Michael and Inald)
 int main()
 {
   pid_t pid;
