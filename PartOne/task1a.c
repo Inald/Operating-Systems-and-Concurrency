@@ -15,10 +15,17 @@ struct element** createProcesses(struct element** processList)
   for(i = 0; i < NUMBER_OF_JOBS; i++)
   {
     newProcess = generateProcess();
-    printf("GENERATED PROCESS - ID: %x, Priority:%x\n", newProcess -> iProcessId, newProcess ->iPriority);
-    addLast(NULL, (struct element**)newProcess + sizeof(struct element**), (struct element**)newProcess + sizeof(struct element**));
+    printf("GENERATED PROCESS - ID: %x, Priority:%d\n", newProcess -> iProcessId, newProcess ->iPriority);
+    if(i == 0)
+    {
+        addLast(NULL, (struct element**)newProcess, (struct element**)newProcess);
+    }
+    else
+    {
+      addLast(NULL, (struct element**)newProcess + sizeof(struct element**), (struct element**)newProcess + sizeof(struct element**));      
+    }
   }
-  printf("The id of the 5th process is %x\n", (processList->phead->iProcessId);
+  
   return processList;
 }
 
