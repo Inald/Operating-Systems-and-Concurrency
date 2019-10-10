@@ -1,0 +1,21 @@
+iIndex = 1
+iIndex = 2
+iIndex = 3
+iIndex = 4
+iIndex = 5
+iIndex = 4
+iIndex = 3
+iIndex = 2
+iIndex = 1
+iIndex = 0
+iIndex = 1
+iIndex = 2
+iIndex = 3
+iIndex = 4
+iIndex = 5
+iIndex = 4
+iIndex = 3
+iIndex = 2
+iIndex = 1
+iIndex = 0
+sSync = 1, sDelayConsumer = 0

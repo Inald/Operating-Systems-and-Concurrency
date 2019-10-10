@@ -1,0 +1,200 @@
+Producer Id = 0, Produced = 1, Consumed = 0: *
+Producer Id = 0, Produced = 2, Consumed = 0: **
+Consumer Id = 0, Produced = 2, Consumed = 1: *
+Consumer Id = 1, Produced = 2, Consumed = 2: 
+Producer Id = 0, Produced = 3, Consumed = 2: *
+Producer Id = 0, Produced = 4, Consumed = 2: **
+Consumer Id = 2, Produced = 4, Consumed = 3: *
+Consumer Id = 2, Produced = 4, Consumed = 4: 
+Producer Id = 0, Produced = 5, Consumed = 4: *
+Consumer Id = 3, Produced = 5, Consumed = 5: 
+Producer Id = 0, Produced = 6, Consumed = 5: *
+Consumer Id = 0, Produced = 6, Consumed = 6: 
+Producer Id = 0, Produced = 7, Consumed = 6: *
+Consumer Id = 1, Produced = 7, Consumed = 7: 
+Producer Id = 0, Produced = 8, Consumed = 7: *
+Consumer Id = 2, Produced = 8, Consumed = 8: 
+Producer Id = 0, Produced = 9, Consumed = 8: *
+Consumer Id = 3, Produced = 9, Consumed = 9: 
+Producer Id = 0, Produced = 10, Consumed = 9: *
+Consumer Id = 0, Produced = 10, Consumed = 10: 
+Producer Id = 0, Produced = 11, Consumed = 10: *
+Consumer Id = 1, Produced = 11, Consumed = 11: 
+Producer Id = 0, Produced = 12, Consumed = 11: *
+Consumer Id = 2, Produced = 12, Consumed = 12: 
+Producer Id = 0, Produced = 13, Consumed = 12: *
+Consumer Id = 3, Produced = 13, Consumed = 13: 
+Producer Id = 0, Produced = 14, Consumed = 13: *
+Consumer Id = 0, Produced = 14, Consumed = 14: 
+Producer Id = 0, Produced = 15, Consumed = 14: *
+Consumer Id = 1, Produced = 15, Consumed = 15: 
+Producer Id = 0, Produced = 16, Consumed = 15: *
+Consumer Id = 2, Produced = 16, Consumed = 16: 
+Producer Id = 0, Produced = 17, Consumed = 16: *
+Consumer Id = 3, Produced = 17, Consumed = 17: 
+Producer Id = 0, Produced = 18, Consumed = 17: *
+Consumer Id = 0, Produced = 18, Consumed = 18: 
+Producer Id = 0, Produced = 19, Consumed = 18: *
+Consumer Id = 1, Produced = 19, Consumed = 19: 
+Producer Id = 0, Produced = 20, Consumed = 19: *
+Consumer Id = 2, Produced = 20, Consumed = 20: 
+Producer Id = 0, Produced = 21, Consumed = 20: *
+Consumer Id = 3, Produced = 21, Consumed = 21: 
+Producer Id = 0, Produced = 22, Consumed = 21: *
+Consumer Id = 0, Produced = 22, Consumed = 22: 
+Producer Id = 0, Produced = 23, Consumed = 22: *
+Consumer Id = 1, Produced = 23, Consumed = 23: 
+Producer Id = 0, Produced = 24, Consumed = 23: *
+Consumer Id = 2, Produced = 24, Consumed = 24: 
+Producer Id = 0, Produced = 25, Consumed = 24: *
+Consumer Id = 3, Produced = 25, Consumed = 25: 
+Producer Id = 0, Produced = 26, Consumed = 25: *
+Consumer Id = 0, Produced = 26, Consumed = 26: 
+Producer Id = 0, Produced = 27, Consumed = 26: *
+Consumer Id = 1, Produced = 27, Consumed = 27: 
+Producer Id = 0, Produced = 28, Consumed = 27: *
+Consumer Id = 2, Produced = 28, Consumed = 28: 
+Producer Id = 0, Produced = 29, Consumed = 28: *
+Consumer Id = 3, Produced = 29, Consumed = 29: 
+Producer Id = 0, Produced = 30, Consumed = 29: *
+Consumer Id = 0, Produced = 30, Consumed = 30: 
+Producer Id = 0, Produced = 31, Consumed = 30: *
+Consumer Id = 1, Produced = 31, Consumed = 31: 
+Producer Id = 0, Produced = 32, Consumed = 31: *
+Consumer Id = 2, Produced = 32, Consumed = 32: 
+Producer Id = 0, Produced = 33, Consumed = 32: *
+Consumer Id = 3, Produced = 33, Consumed = 33: 
+Producer Id = 0, Produced = 34, Consumed = 33: *
+Consumer Id = 0, Produced = 34, Consumed = 34: 
+Producer Id = 0, Produced = 35, Consumed = 34: *
+Consumer Id = 1, Produced = 35, Consumed = 35: 
+Producer Id = 0, Produced = 36, Consumed = 35: *
+Consumer Id = 2, Produced = 36, Consumed = 36: 
+Producer Id = 0, Produced = 37, Consumed = 36: *
+Consumer Id = 3, Produced = 37, Consumed = 37: 
+Producer Id = 0, Produced = 38, Consumed = 37: *
+Consumer Id = 0, Produced = 38, Consumed = 38: 
+Producer Id = 0, Produced = 39, Consumed = 38: *
+Consumer Id = 1, Produced = 39, Consumed = 39: 
+Producer Id = 0, Produced = 40, Consumed = 39: *
+Consumer Id = 2, Produced = 40, Consumed = 40: 
+Producer Id = 0, Produced = 41, Consumed = 40: *
+Consumer Id = 3, Produced = 41, Consumed = 41: 
+Producer Id = 0, Produced = 42, Consumed = 41: *
+Consumer Id = 0, Produced = 42, Consumed = 42: 
+Producer Id = 0, Produced = 43, Consumed = 42: *
+Consumer Id = 1, Produced = 43, Consumed = 43: 
+Producer Id = 0, Produced = 44, Consumed = 43: *
+Producer Id = 0, Produced = 45, Consumed = 43: **
+Consumer Id = 3, Produced = 45, Consumed = 44: *
+Consumer Id = 3, Produced = 45, Consumed = 45: 
+Producer Id = 0, Produced = 46, Consumed = 45: *
+Consumer Id = 0, Produced = 46, Consumed = 46: 
+Producer Id = 0, Produced = 47, Consumed = 46: *
+Consumer Id = 2, Produced = 47, Consumed = 47: 
+Producer Id = 0, Produced = 48, Consumed = 47: *
+Consumer Id = 1, Produced = 48, Consumed = 48: 
+Producer Id = 0, Produced = 49, Consumed = 48: *
+Producer Id = 0, Produced = 50, Consumed = 48: **
+Consumer Id = 0, Produced = 50, Consumed = 49: *
+Consumer Id = 0, Produced = 50, Consumed = 50: 
+Producer Id = 0, Produced = 51, Consumed = 50: *
+Consumer Id = 2, Produced = 51, Consumed = 51: 
+Producer Id = 0, Produced = 52, Consumed = 51: *
+Consumer Id = 3, Produced = 52, Consumed = 52: 
+Producer Id = 0, Produced = 53, Consumed = 52: *
+Consumer Id = 1, Produced = 53, Consumed = 53: 
+Producer Id = 0, Produced = 54, Consumed = 53: *
+Consumer Id = 0, Produced = 54, Consumed = 54: 
+Producer Id = 0, Produced = 55, Consumed = 54: *
+Consumer Id = 2, Produced = 55, Consumed = 55: 
+Producer Id = 0, Produced = 56, Consumed = 55: *
+Consumer Id = 3, Produced = 56, Consumed = 56: 
+Producer Id = 0, Produced = 57, Consumed = 56: *
+Consumer Id = 1, Produced = 57, Consumed = 57: 
+Producer Id = 0, Produced = 58, Consumed = 57: *
+Consumer Id = 0, Produced = 58, Consumed = 58: 
+Producer Id = 0, Produced = 59, Consumed = 58: *
+Consumer Id = 2, Produced = 59, Consumed = 59: 
+Producer Id = 0, Produced = 60, Consumed = 59: *
+Consumer Id = 3, Produced = 60, Consumed = 60: 
+Producer Id = 0, Produced = 61, Consumed = 60: *
+Consumer Id = 1, Produced = 61, Consumed = 61: 
+Producer Id = 0, Produced = 62, Consumed = 61: *
+Consumer Id = 0, Produced = 62, Consumed = 62: 
+Producer Id = 0, Produced = 63, Consumed = 62: *
+Consumer Id = 2, Produced = 63, Consumed = 63: 
+Producer Id = 0, Produced = 64, Consumed = 63: *
+Consumer Id = 3, Produced = 64, Consumed = 64: 
+Producer Id = 0, Produced = 65, Consumed = 64: *
+Consumer Id = 1, Produced = 65, Consumed = 65: 
+Producer Id = 0, Produced = 66, Consumed = 65: *
+Consumer Id = 0, Produced = 66, Consumed = 66: 
+Producer Id = 0, Produced = 67, Consumed = 66: *
+Consumer Id = 2, Produced = 67, Consumed = 67: 
+Producer Id = 0, Produced = 68, Consumed = 67: *
+Consumer Id = 3, Produced = 68, Consumed = 68: 
+Producer Id = 0, Produced = 69, Consumed = 68: *
+Consumer Id = 1, Produced = 69, Consumed = 69: 
+Producer Id = 0, Produced = 70, Consumed = 69: *
+Consumer Id = 0, Produced = 70, Consumed = 70: 
+Producer Id = 0, Produced = 71, Consumed = 70: *
+Consumer Id = 2, Produced = 71, Consumed = 71: 
+Producer Id = 0, Produced = 72, Consumed = 71: *
+Consumer Id = 3, Produced = 72, Consumed = 72: 
+Producer Id = 0, Produced = 73, Consumed = 72: *
+Consumer Id = 1, Produced = 73, Consumed = 73: 
+Producer Id = 0, Produced = 74, Consumed = 73: *
+Consumer Id = 0, Produced = 74, Consumed = 74: 
+Producer Id = 0, Produced = 75, Consumed = 74: *
+Consumer Id = 2, Produced = 75, Consumed = 75: 
+Producer Id = 0, Produced = 76, Consumed = 75: *
+Consumer Id = 3, Produced = 76, Consumed = 76: 
+Producer Id = 0, Produced = 77, Consumed = 76: *
+Consumer Id = 1, Produced = 77, Consumed = 77: 
+Producer Id = 0, Produced = 78, Consumed = 77: *
+Consumer Id = 0, Produced = 78, Consumed = 78: 
+Producer Id = 0, Produced = 79, Consumed = 78: *
+Consumer Id = 2, Produced = 79, Consumed = 79: 
+Producer Id = 0, Produced = 80, Consumed = 79: *
+Consumer Id = 3, Produced = 80, Consumed = 80: 
+Producer Id = 0, Produced = 81, Consumed = 80: *
+Consumer Id = 1, Produced = 81, Consumed = 81: 
+Producer Id = 0, Produced = 82, Consumed = 81: *
+Consumer Id = 0, Produced = 82, Consumed = 82: 
+Producer Id = 0, Produced = 83, Consumed = 82: *
+Consumer Id = 2, Produced = 83, Consumed = 83: 
+Producer Id = 0, Produced = 84, Consumed = 83: *
+Consumer Id = 3, Produced = 84, Consumed = 84: 
+Producer Id = 0, Produced = 85, Consumed = 84: *
+Consumer Id = 1, Produced = 85, Consumed = 85: 
+Producer Id = 0, Produced = 86, Consumed = 85: *
+Producer Id = 0, Produced = 87, Consumed = 85: **
+Consumer Id = 2, Produced = 87, Consumed = 86: *
+Consumer Id = 2, Produced = 87, Consumed = 87: 
+Producer Id = 0, Produced = 88, Consumed = 87: *
+Consumer Id = 3, Produced = 88, Consumed = 88: 
+Producer Id = 0, Produced = 89, Consumed = 88: *
+Consumer Id = 0, Produced = 89, Consumed = 89: 
+Producer Id = 0, Produced = 90, Consumed = 89: *
+Consumer Id = 1, Produced = 90, Consumed = 90: 
+Producer Id = 0, Produced = 91, Consumed = 90: *
+Consumer Id = 2, Produced = 91, Consumed = 91: 
+Producer Id = 0, Produced = 92, Consumed = 91: *
+Consumer Id = 3, Produced = 92, Consumed = 92: 
+Producer Id = 0, Produced = 93, Consumed = 92: *
+Consumer Id = 0, Produced = 93, Consumed = 93: 
+Producer Id = 0, Produced = 94, Consumed = 93: *
+Consumer Id = 1, Produced = 94, Consumed = 94: 
+Producer Id = 0, Produced = 95, Consumed = 94: *
+Consumer Id = 2, Produced = 95, Consumed = 95: 
+Producer Id = 0, Produced = 96, Consumed = 95: *
+Consumer Id = 3, Produced = 96, Consumed = 96: 
+Producer Id = 0, Produced = 97, Consumed = 96: *
+Consumer Id = 0, Produced = 97, Consumed = 97: 
+Producer Id = 0, Produced = 98, Consumed = 97: *
+Consumer Id = 1, Produced = 98, Consumed = 98: 
+Producer Id = 0, Produced = 99, Consumed = 98: *
+Consumer Id = 2, Produced = 99, Consumed = 99: 
+Producer Id = 0, Produced = 100, Consumed = 99: *
+Consumer Id = 3, Produced = 100, Consumed = 100: 
