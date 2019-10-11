@@ -11,10 +11,11 @@ void createProcesses(struct element** linkedList)
 {
   int i;
   struct process* newProcess;
+  struct element* head;
   for(i = 1; i <= NUMBER_OF_JOBS; i++)
   {
     newProcess = generateProcess();
-    printf("Address of list: %x, Address of process: %x\n", &linkedList, newProcess);
+    printf("Address of list: %x, Address of process: %x\n", linkedList, newProcess);
     addLast(newProcess, linkedList, linkedList); 
   }
 }
