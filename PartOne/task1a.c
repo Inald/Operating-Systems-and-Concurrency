@@ -13,11 +13,16 @@ struct element** createProcesses(struct element** processList)
   struct process* newProcess;
   for(i = 0; i < NUMBER_OF_JOBS; i++)
   {
+<<<<<<< HEAD
     newProcess = generateProcess(); 
     addLast(generateProcess(), (struct element **)newProcess + sizeof(struct element**), (struct element **)newProcess + sizeof(struct element**));      
     printf("Address of list start: %x, Address of process: %x, ID: %d, Priority: %d\n", &processList, newProcess, newProcess -> iProcessId, newProcess ->iPriority);
+=======
+    newProcess = generateProcess();
+    printf("Address of processList: %x\n", processList);
+    addLast(newProcess, processList, processList + i*sizeof(struct element**));
+>>>>>>> c32597b4961c285e6d4c796236482129cc717a3d
   }
-  
   return processList;
 }
 
@@ -27,9 +32,9 @@ int main()
   int pBurst, nBurst, response, turnAround, i;
   double avgResponse, avgTurnAround;
   //Create a pointer that points to a pointer of elements
-  struct element** processList = createProcesses(processList);;
-  printf("Process ID = %d, Previous Burst Time = %d, New Burst Time = %d, Response Time = %d, Turn Around Time = %d\n", pid, pBurst, nBurst, response, turnAround);
-  printf("Average response time = %f\nAverage turn around time = %f\n", avgResponse, avgTurnAround);
+  struct element** processList = createProcesses(processList);
+  //printf("Process ID = %d, Previous Burst Time = %d, New Burst Time = %d, Response Time = %d, Turn Around Time = %d\n", pid, pBurst, nBurst, response, turnAround);
+  //printf("Average response time = %f\nAverage turn around time = %f\n", avgResponse, avgTurnAround);
   return 0;
 }
 
