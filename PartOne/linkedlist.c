@@ -6,7 +6,6 @@ void addLast(void * pData, struct element ** pHead, struct element ** pTail)
 	struct element * pNewElement = (struct element *) malloc (sizeof(struct element));
 	pNewElement->pData = pData;
 	pNewElement->pNext = NULL;
-	
 	if((*pHead) == NULL)
 	{
 		pNewElement->pNext = (*pHead);
