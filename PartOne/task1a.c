@@ -17,6 +17,10 @@ void createProcesses()
   {
     addLast(generateProcess(), head, tail); 
   }
+  for(i = 1; i <= NUMBER_OF_JOBS, i++)
+  {
+    removeFirst(head, tail);
+  }
 }
 
 int main()
