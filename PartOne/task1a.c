@@ -32,6 +32,7 @@ int main()
     sumResponse += response;
     sumTurnAround += turnAround;
     printf("Process ID = %d, Previous Burst Time = %d, New Burst Time = %d, Response Time = %d, Turn Around Time = %d\n", pid, pBurst, nBurst, response, turnAround);
+    free(newProcess);
   }
   printf("Average response time = %f\nAverage turn around time = %f\n", (double)sumResponse/(double)NUMBER_OF_JOBS, (double)sumTurnAround/(double)NUMBER_OF_JOBS);
   //Remove in FCFS style - FIFO
