@@ -22,7 +22,7 @@ pid_t pid;
     //Set variables to process details
     pid = currentProcess -> iProcessId;
     pBurst = currentProcess ->iPreviousBurstTime;
-    nBurst = currentProcess ->iRemainingBurstTime;
+    rBurst = currentProcess ->iRemainingBurstTime;
     //Response time is previous turnAround time
     response += pBurst - rBurst;
     //TurnAround is previous turnAround + previous burst time
