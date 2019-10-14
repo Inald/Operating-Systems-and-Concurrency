@@ -8,7 +8,7 @@
 void algorithmRR(struct element **head, struct element **tail)
 {
 pid_t pid;
-  int i, pBurst, rBurst, response = 0, sumTurnAround = 0;
+  int i, pBurst, rBurst, response = 0, turnAround = 0, sumTurnAround = 0;
   struct process *currentProcess;
   struct timeval *createdPtr, *finishPtr;
   while(*head)
@@ -23,11 +23,12 @@ pid_t pid;
     pid = currentProcess -> iProcessId;
     pBurst = currentProcess ->iPreviousBurstTime;
     rBurst = currentProcess ->iRemainingBurstTime;
-    //TurnAround is previous difference in time from creation to being finished
-    sumTurnAround += getDifferenceInMilliSeconds(*createdPtr, *finishPtr);
+    turnAround += getDifferenceInMilliSeconds(*createdPtr, *finishPtr);
     if((currentProcess -> iRemainingBurstTime) <= 0)
     {
-        printf("Process ID = %d, Previous Burst Time = %d, Remaining Burst Time = %d, Response Time = %d, Turnaround Time = %d\n", pid, pBurst, rBurst, response, sumTurnAround);
+        //TurnAround is difference in time from creation to being finished
+        sumTurnAround += turnAround;
+        printf("Process ID = %d, Previous Burst Time = %d, Remaining Burst Time = %d, Response Time = %d, Turnaround Time = %d\n", pid, pBurst, rBurst, response, turnAround);
         free(currentProcess);
     }
     else
