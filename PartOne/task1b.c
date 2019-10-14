@@ -13,6 +13,7 @@ pid_t pid;
   struct timeval *createdPtr, *finishPtr;
   while(*head)
   {
+    //Get the head process of the list to run
     currentProcess = ((struct process *) removeFirst(head, tail));
     //Pointers to process times
     createdPtr = &(currentProcess -> oTimeCreated);
@@ -23,10 +24,11 @@ pid_t pid;
     pid = currentProcess -> iProcessId;
     pBurst = currentProcess ->iPreviousBurstTime;
     rBurst = currentProcess ->iRemainingBurstTime;
+    //Turnaround is difference in time from creation to current time
     turnAround += getDifferenceInMilliSeconds(*createdPtr, *finishPtr);
     if((currentProcess -> iRemainingBurstTime) <= 0)
     {
-        //TurnAround is difference in time from creation to being finished
+        //Sum individual turnaround times to calculate average
         sumTurnAround += turnAround;
         printf("Process ID = %d, Previous Burst Time = %d, Remaining Burst Time = %d, Response Time = %d, Turnaround Time = %d\n", pid, pBurst, rBurst, response, turnAround);
         free(currentProcess);
@@ -36,10 +38,10 @@ pid_t pid;
         printf("Process ID = %d, Previous Burst Time = %d, Remaining Burst Time = %d, Response Time = %d\n", pid, pBurst, rBurst, response);
         addLast(currentProcess, head, tail);
     }
-    //Response time is previous turnAround time
+    //Response time is difference in burst times
     response += pBurst - rBurst;
   }
-  //Calculate and return averages for response time and turn around time
+  //Calculate and print averages for response time and turn around time
   printf("Average response time = %f\nAverage turn around time = %f\n", (double)response/(double)NUMBER_OF_JOBS, (double)sumTurnAround/(double)NUMBER_OF_JOBS);
 
 }
