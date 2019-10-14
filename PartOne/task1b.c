@@ -42,7 +42,7 @@ pid_t pid;
     response += pBurst - rBurst;
   }
   //Calculate and print averages for response time and turn around time
-  printf("Average response time = %f\nAverage turn around time = %f\n", (double)response/(double)NUMBER_OF_JOBS, (double)sumTurnAround/(double)NUMBER_OF_JOBS);
+  printf("Average response time = %f\nAverage turnaround time = %f\n", (double)response/(double)NUMBER_OF_JOBS, (double)sumTurnAround/(double)NUMBER_OF_JOBS);
 
 }
 void createJobs()
