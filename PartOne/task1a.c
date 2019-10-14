@@ -11,24 +11,30 @@
 void algorithmFCFS(struct element **head, struct element **tail)
 {
   pid_t pid;
-  int i, pBurst, nBurst, response, turnAround = 0, sumResponse = 0, sumTurnAround = 0;
+  int i, pBurst, nBurst, response = 0, turnAround = 0, sumResponse = 0, sumTurnAround = 0;
   struct process *currentProcess;
+  struct timeval *createdPtr, *finishPtr;
   //Remove in FCFS style - FIFO
-  for(i = 1; i <= NUMBER_OF_JOBS; i++)
+  while(*head)
   {
     currentProcess = ((struct process *) removeFirst(head, tail));
+    //Pointers to process times
+    createdPtr = &(currentProcess -> oTimeCreated);
+    finishPtr = &(currentProcess -> oMostRecentTime);
+    //Run the process
+    runNonPreemptiveJob(currentProcess, createdPtr, finishPtr);
     //Set variables to process details
     pid = currentProcess -> iProcessId;
     pBurst = currentProcess ->iPreviousBurstTime;
     nBurst = currentProcess ->iRemainingBurstTime;
-    //Response time is previous turnAround time
-    response = turnAround;
-    //TurnAround is previous turnAround + previous burst time
-    turnAround += (currentProcess -> iPreviousBurstTime);
-    //Calculate total sums of response time and turnaround times
-    sumResponse += response;
+    //Turnaround is difference in time between starting and finishing the process
+    turnAround += getDifferenceInMilliSeconds(*createdPtr, *finishPtr);
     sumTurnAround += turnAround;
     printf("Process ID = %d, Previous Burst Time = %d, New Burst Time = %d, Response Time = %d, Turn Around Time = %d\n", pid, pBurst, nBurst, response, turnAround);
+    //Calculate total sums of response time and turnaround times
+    sumResponse += response;
+    //Response time is difference in burst time
+    response += pBurst - nBurst;
     free(currentProcess);
   }
   //Calculate and return averages for response time and turn around time
@@ -37,21 +43,13 @@ void algorithmFCFS(struct element **head, struct element **tail)
 void createJobs()
 {
   int i;
-  struct process *newProcess;
   struct element *ptrH = NULL, *ptrT = NULL;
   struct element **head = &ptrH;
   struct element **tail = &ptrT;
-  struct timeval *createdPtr, *finishPtr;
   for(i = 1; i <= NUMBER_OF_JOBS; i++)
   {
-    newProcess = generateProcess();
-    //Pointers to process times
-    createdPtr = &(newProcess -> oTimeCreated);
-    finishPtr = &(newProcess -> oMostRecentTime);
-    //Run the process
-    runNonPreemptiveJob(newProcess, createdPtr, finishPtr);
     //Add process to the linked list
-    addLast(newProcess, head, tail);
+    addLast(generateProcess(), head, tail);
   }
   //Apply FCFS algorithm to elements in linked list
   algorithmFCFS(head, tail);

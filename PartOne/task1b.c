@@ -35,7 +35,7 @@ pid_t pid;
     }
     else
     {
-        printf("Process ID = %d, Previous Burst Time = %d, Remaining Burst Time = %d, Response Time = %d\n", pid, pBurst, rBurst, response);
+        printf("Process ID = %d, Previous Burst Time = %d, Remaining Burst Time = %d, Response Time = %d Turnaround Time = %d\n", pid, pBurst, rBurst, response, turnAround);
         addLast(currentProcess, head, tail);
     }
     //Response time is difference in burst times
