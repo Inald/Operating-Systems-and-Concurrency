@@ -6,57 +6,59 @@
 #include "linkedlist.h"
 
 // Implementation of the FCFS scheduling algorithm (by Michael and Inald)
-// OSC Coursework - Part One - Task 1a
+
+double calcAverage(int sum, int n)
+{
+  return ((double)sum/(double)n);
+}
 
 void algorithmFCFS(struct element **head, struct element **tail)
 {
   pid_t pid;
-  int i, pBurst, nBurst, response = 0, turnAround = 0, sumResponse = 0, sumTurnAround = 0;
+  int pBurst, nBurst, response = 0, turnAround = 0, sumResponse = 0, sumTurnAround = 0;
   struct process *currentProcess;
-  struct timeval *createdPtr, *finishPtr;
-  //Remove in FCFS style - FIFO
+  struct timeval *createdPtr, *recentPtr;
+  //Run processes until list is empty
   while(*head)
   {
     currentProcess = ((struct process *) removeFirst(head, tail));
-    //Pointers to process times
     createdPtr = &(currentProcess -> oTimeCreated);
-    finishPtr = &(currentProcess -> oMostRecentTime);
-    //Run the process
-    runNonPreemptiveJob(currentProcess, createdPtr, finishPtr);
+    recentPtr = &(currentProcess -> oMostRecentTime);
+    //Run the process non pre-emptively
+    runNonPreemptiveJob(currentProcess, createdPtr, recentPtr);
     //Set variables to process details
     pid = currentProcess -> iProcessId;
     pBurst = currentProcess ->iPreviousBurstTime;
     nBurst = currentProcess ->iRemainingBurstTime;
-    //Turnaround is difference in time between starting and finishing the process
-    turnAround += getDifferenceInMilliSeconds(*createdPtr, *finishPtr);
-    sumTurnAround += turnAround;
-    printf("Process ID = %d, Previous Burst Time = %d, New Burst Time = %d, Response Time = %d, Turn Around Time = %d\n", pid, pBurst, nBurst, response, turnAround);
-    //Calculate total sums of response time and turnaround times
+    //Response is the same as turnaround for previous process
+    response = turnAround;
     sumResponse += response;
-    //Response time is difference in burst time
-    response += pBurst - nBurst;
+    //Turnaround is difference in time between starting and finishing the process
+    turnAround += getDifferenceInMilliSeconds(*createdPtr, *recentPtr);
+    sumTurnAround += turnAround;
+    printf("Process ID = %d, Initial Burst Time = %d, Previous Burst Time = %d, New Burst Time = %d, Response Time = %d, Turn Around Time = %d\n", pid, iBurst, pBurst, nBurst, response, turnAround);
     free(currentProcess);
   }
-  //Calculate and return averages for response time and turn around time
-  printf("Average response time = %f\nAverage turn around time = %f\n", (double)sumResponse/(double)NUMBER_OF_JOBS, (double)sumTurnAround/(double)NUMBER_OF_JOBS);
+  //Calculate and print averages for response time and turn around time
+  printf("Average response time = %f\nAverage turn around time = %f\n", calcAverage(sumResponse, NUMBER_OF_JOBS), calcAverage(sumTurnAround, NUMBER_OF_JOBS));
 }
-void createJobs()
+void createJobs(struct element **head, struct element **tail)
 {
   int i;
-  struct element *ptrH = NULL, *ptrT = NULL;
-  struct element **head = &ptrH;
-  struct element **tail = &ptrT;
   for(i = 1; i <= NUMBER_OF_JOBS; i++)
   {
     //Add process to the linked list
     addLast(generateProcess(), head, tail);
   }
-  //Apply FCFS algorithm to elements in linked list
-  algorithmFCFS(head, tail);
 }
 int main()
 {
-  createJobs();
+  //Create head and tail pointers to pointers for the linked list
+  struct element *ptrH = NULL, *ptrT = NULL;
+  struct element **head = &ptrH, **tail = &ptrT;
+  createJobs(head, tail);
+  //Apply FCFS algorithm to elements in linked list
+  algorithmFCFS(head, tail);
   return 0; 
 }
 
