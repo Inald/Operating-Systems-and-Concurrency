@@ -17,7 +17,6 @@ void addLast(void * pData, struct element ** pHead, struct element ** pTail)
 		(*pTail)->pNext = pNewElement;
 		(*pTail) = pNewElement;
 	}
-	//printf("Element Address: %x, Element Next: %x, pHead = %x, pTail: %x\n", &(pNewElement -> pNext), (*pHead), *pHead, *pTail);
 }
 
 void addFirst(void * pData, struct element ** pHead, struct element ** pTail)
