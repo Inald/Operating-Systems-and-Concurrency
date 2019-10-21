@@ -1,9 +1,10 @@
+#include "coursework.h"
+#include "linkedlist.h"
 #include <sys/types.h>
 #include <stdio.h>
 #include <unistd.h>
 #include <stdlib.h>
-#include "coursework.h"
-#include "linkedlist.h"
+
 
 //Implementation of the Round Robin scheduling algorithm (by Michael and Inald)
 double calcAverage(int sum, int n)
@@ -16,9 +17,9 @@ void algorithmRR(struct element **head, struct element **tail)
   int responseCount = 0, pBurst, rBurst, response = 0, turnAround = 0, sumResponse = 0, sumTurnAround = 0;
   struct process *currentProcess;
   struct timeval *createdPtr, *finishPtr;
-  //Run processes until the list is empty
   while(*head)
   {
+    //Run processes until the list is empty
     currentProcess = ((struct process *) removeFirst(head, tail));
     //Pointers to process times
     createdPtr = &(currentProcess -> oTimeCreated);
@@ -29,46 +30,27 @@ void algorithmRR(struct element **head, struct element **tail)
     pid = currentProcess -> iProcessId;
     pBurst = currentProcess ->iPreviousBurstTime;
     rBurst = currentProcess ->iRemainingBurstTime;
-    if(rBurst <= 0)
+    response = turnAround;
+    turnAround += getDifferenceInMilliSeconds(*createdPtr, *finishPtr);
+    if(rBurst > 0)
     {
-      //In the event that a process is finished within first time slice
+      printf("Process ID = %d, Previous Burst Time = %d, Remaining Burst Time = %d", pid, pBurst, rBurst);
       if(responseCount < NUMBER_OF_JOBS)
       {
-        response = turnAround;
-        //Count the first NUMBER_OF_JOBS to print response times
         responseCount++;
         sumResponse += response;
-        printf("Process ID = %d, Previous Burst Time = %d, Remaining Burst Time = %d, Response Time = %d,", pid, pBurst, rBurst, response);
+        printf(", Response time = %d\n", response);
       }
-      else
-      {
-        //Sum individual turnaround times to calculate average
-        sumTurnAround += turnAround;
-        printf("Process ID = %d, Previous Burst Time = %d, Remaining Burst Time = %d,", pid, pBurst, rBurst);
-        free(currentProcess);
-      }
-      printf(" Turnaround time = %d\n", turnAround);
-    }
-    else 
-    {
-      if(responseCount < NUMBER_OF_JOBS)
-      {
-        response = turnAround;
-        //Count the first NUMBER_OF_JOBS to print response times
-        responseCount++;
-        sumResponse += response;
-        printf("Process ID = %d, Previous Burst Time = %d, Remaining Burst Time = %d, Response Time = %d\n", pid, pBurst, rBurst, response);
-      }
-      else
-      {
-        printf("Process ID = %d, Previous Burst Time = %d, Remaining Burst Time = %d\n", pid, pBurst, rBurst);
-      }
-      turnAround += getDifferenceInMilliSeconds(*createdPtr, *finishPtr);
+      else{printf ("\n");}
       addLast(currentProcess, head, tail);
     }
+    else
+    {
+      sumTurnAround += turnAround;
+      printf("Process ID = %d, Previous Burst Time = %d, Remaining Burst Time = %d, Turnaround time = %d\n", pid, pBurst, rBurst, turnAround);
+    }
   }
-  //Calculate and print averages for response time and turn around time
-  printf("Average response time = %f\nAverage turn around time = %f\n", calcAverage(sumResponse, NUMBER_OF_JOBS), calcAverage(sumTurnAround, NUMBER_OF_JOBS));
+  printf("Average response time: %f\nAverage turnaround time:%f\n", calcAverage(sumResponse, NUMBER_OF_JOBS), calcAverage(sumTurnAround, NUMBER_OF_JOBS));
 }
 void createJobs(struct element **head, struct element **tail)
 {

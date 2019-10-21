@@ -36,7 +36,7 @@ void algorithmFCFS(struct element **head, struct element **tail)
     //Turnaround is difference in time between starting and finishing the process
     turnAround += getDifferenceInMilliSeconds(*createdPtr, *recentPtr);
     sumTurnAround += turnAround;
-    printf("Process ID = %d, Initial Burst Time = %d, Previous Burst Time = %d, New Burst Time = %d, Response Time = %d, Turn Around Time = %d\n", pid, iBurst, pBurst, nBurst, response, turnAround);
+    printf("Process ID = %d, Previous Burst Time = %d, New Burst Time = %d, Response Time = %d, Turn Around Time = %d\n", pid, pBurst, nBurst, response, turnAround);
     free(currentProcess);
   }
   //Calculate and print averages for response time and turn around time
