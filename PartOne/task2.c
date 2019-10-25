@@ -19,15 +19,16 @@ void visualisation(){
 /*removes elements and decrements the shared counter for
 every element removed */
 void * consumerFunc(){
-    int i = 0;
+    int i = 0, temp = 0;
     sem_wait(&sDelayConsumer);
     while(i < NUMBER_OF_JOBS){
         sem_wait(&sSync);
         sharedCounter--;
         i++;
+        temp = sharedCounter;
         visualisation();
         sem_post(&sSync);
-        if(sharedCounter == 0){
+        if(temp == 0 && i != NUMBER_OF_JOBS){
             sem_wait(&sDelayConsumer);
         }
     }
@@ -53,7 +54,7 @@ int main(int argc, char **argv){
     pthread_t consumer, producer;
     int finalSync, finalDelayConsumer;
     sem_init(&sSync, 0 ,1);
-    sem_init(&sDelayConsumer, 0 ,1);
+    sem_init(&sDelayConsumer, 0 ,0);
     pthread_create(&producer, NULL, producerFunc, NULL);
     pthread_create(&consumer, NULL, consumerFunc, NULL);
     pthread_join(consumer, NULL);
