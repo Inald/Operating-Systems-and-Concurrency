@@ -50,7 +50,7 @@ void algorithmRR(struct element **head, struct element **tail)
       printf("Process ID = %d, Previous Burst Time = %d, Remaining Burst Time = %d, Turnaround time = %d\n", pid, pBurst, rBurst, turnAround);
     }
   }
-  printf("Average response time: %f\nAverage turnaround time:%f\n", calcAverage(sumResponse, NUMBER_OF_JOBS), calcAverage(sumTurnAround, NUMBER_OF_JOBS));
+  printf("Average response time: %f\nAverage turnaround time: %f\n", calcAverage(sumResponse, NUMBER_OF_JOBS), calcAverage(sumTurnAround, NUMBER_OF_JOBS));
 }
 void createJobs(struct element **head, struct element **tail)
 {
