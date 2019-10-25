@@ -17,10 +17,6 @@ void addLast(void * pData, struct element ** pHead, struct element ** pTail)
 		(*pTail)->pNext = pNewElement;
 		(*pTail) = pNewElement;
 	}
-<<<<<<< HEAD
-	
-=======
->>>>>>> ff5478ddba9dc4f91db03ef65d56ce33c1d7031e
 }
 
 void addFirst(void * pData, struct element ** pHead, struct element ** pTail)
