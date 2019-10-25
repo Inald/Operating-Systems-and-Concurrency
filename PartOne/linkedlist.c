@@ -12,11 +12,12 @@ void addLast(void * pData, struct element ** pHead, struct element ** pTail)
 		(*pTail) = (*pHead) = pNewElement;
 	}
 	else 
-	{
+	{	
 		pNewElement->pNext = NULL;
 		(*pTail)->pNext = pNewElement;
 		(*pTail) = pNewElement;
 	}
+	
 }
 
 void addFirst(void * pData, struct element ** pHead, struct element ** pTail)
