@@ -30,11 +30,15 @@ void algorithmRR(struct element **head, struct element **tail)
     pid = currentProcess -> iProcessId;
     pBurst = currentProcess ->iPreviousBurstTime;
     rBurst = currentProcess ->iRemainingBurstTime;
+    //Response time of a process is same as current turnaround time of previous process
     response = turnAround;
+    //Get difference in time between creation and most recent time.
     turnAround += getDifferenceInMilliSeconds(*createdPtr, *finishPtr);
+    //If process isn't finished...
     if(rBurst > 0)
     {
       printf("Process ID = %d, Previous Burst Time = %d, Remaining Burst Time = %d", pid, pBurst, rBurst);
+      //If first time responding to process, response time...
       if(responseCount < NUMBER_OF_JOBS)
       {
         responseCount++;
@@ -42,6 +46,7 @@ void algorithmRR(struct element **head, struct element **tail)
         printf(", Response time = %d\n", response);
       }
       else{printf ("\n");}
+      //Add process back onto list
       addLast(currentProcess, head, tail);
     }
     else
@@ -50,6 +55,7 @@ void algorithmRR(struct element **head, struct element **tail)
       printf("Process ID = %d, Previous Burst Time = %d, Remaining Burst Time = %d, Turnaround time = %d\n", pid, pBurst, rBurst, turnAround);
     }
   }
+  //Calculate averages of turnaround/response
   printf("Average response time: %f\nAverage turnaround time: %f\n", calcAverage(sumResponse, NUMBER_OF_JOBS), calcAverage(sumTurnAround, NUMBER_OF_JOBS));
 }
 void createJobs(struct element **head, struct element **tail)
