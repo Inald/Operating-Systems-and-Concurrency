@@ -77,3 +77,8 @@ int main()
   algorithmRR(head, tail);
   return 0; 
 }
+<<<<<<< HEAD
+=======
+
+
+>>>>>>> ff5478ddba9dc4f91db03ef65d56ce33c1d7031e
