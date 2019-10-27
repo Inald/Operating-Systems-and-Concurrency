@@ -8,7 +8,7 @@
 #include "linkedlist.h"
 
 sem_t sSync, sDelayConsumer, sCount;
-int produced = 0, consumed = 0, sharedCounter = 0;
+int produced = 0, consumed = 0;
 //Create head and tail pointers to pointers for the linked list
 struct element *ptrH = NULL, *ptrT = NULL;
 struct element **head = &ptrH, **tail = &ptrT;
@@ -18,7 +18,7 @@ void visualisation()
 {
     int i, count;
     sem_getvalue(&sCount, &count);
-    printf("Produced = %d Consumed = %d ", produced, consumed);
+    printf("Produced = %d Consumed = %d: ", produced, consumed);
     for(int i = 0; i < count; i++)
     {
         printf("*");
@@ -27,36 +27,37 @@ void visualisation()
 }
 
 void * consumerFunc(){
-    int i = 0, temp = 0, count;
-    sem_wait(&sDelayConsumer);
-    while(produced < MAX_BUFFER_SIZE){
+    int temp = 0, count = 0;
+    while(consumed < MAX_NUMBER_OF_JOBS){
         sem_wait(&sSync);
-        i++;
         removeFirst(head, tail);
         consumed++;
         temp = consumed;
         sem_wait(&sCount);
         sem_getvalue(&sCount, &count);
+        printf("count in consumer = %d\n", count);
         visualisation();
-        sem_post(&sSync);
-        if(count == 0 && produced == consumed && i != MAX_BUFFER_SIZE){
+        if(count == 0 && consumed != MAX_NUMBER_OF_JOBS)
+        {
             sem_wait(&sDelayConsumer);
         }
+        sem_post(&sSync);
     }
 }
 
 
 void * producerFunc(){
-    int i = 0, count;
-    while(i < MAX_BUFFER_SIZE){
+    int count = 0;
+    while(produced < MAX_NUMBER_OF_JOBS){
         sem_wait(&sSync);
-        i++;
         addLast((char *)'*', head, tail);
         produced++;
         sem_post(&sCount);
-        visualisation();
         sem_getvalue(&sCount, &count);
-        if(count == 1){
+        printf("count in producer = %d\n", count);
+        visualisation();
+        if(count == 1)
+        {
             sem_post(&sDelayConsumer);
         }
         sem_post(&sSync);
@@ -65,9 +66,10 @@ void * producerFunc(){
 
 int main(int argc, char **argv){
     pthread_t consumer, producer;
-    int finalSync, finalDelayConsumer, finalCount;
+    int finalSync, finalDelayConsumer, finalDelayProducer, finalCount;
     sem_init(&sSync, 0 , 1);
-    sem_init(&sDelayConsumer, 0 ,0);
+    sem_init(&sDelayConsumer, 0 , 0);
+    sem_init(&sCount, 0, 0);
     pthread_create(&producer, NULL, producerFunc, NULL);
     pthread_create(&consumer, NULL, consumerFunc, NULL);
     pthread_join(consumer, NULL);
