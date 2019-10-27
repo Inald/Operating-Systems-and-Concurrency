@@ -8,25 +8,29 @@
 #include "linkedlist.h"
 
 sem_t sSync, sDelayConsumer;
-int sharedCounter = 0;
-
+int produced = 0, consumed = 0, sharedCounter = 0;
+//Create head and tail pointers to pointers for the linked list
+struct element *ptrH = NULL, *ptrT = NULL;
+struct element **head = &ptrH, **tail = &ptrT;
 /*displays the exact number of elements currently in buffer
 everytime an element is added to or removed from the buffer*/
 void visualisation(){
-    printf("iIndex = %d\n", sharedCounter);
+    printf("Produced = %d Consumed = %d\n", produced, consumed);
 }
 
 void * consumerFunc(){
     int i = 0, temp = 0;
     sem_wait(&sDelayConsumer);
-    while(i < NUMBER_OF_JOBS){
+    while(i < MAX_BUFFER_SIZE){
         sem_wait(&sSync);
-        sharedCounter--;
         i++;
-        temp = sharedCounter;
+        temp = consumed;
+        removeFirst(head, tail);
+        consumed++;
+        sharedCounter--;
         visualisation();
         sem_post(&sSync);
-        if(temp == 0 && i != NUMBER_OF_JOBS){
+        if(temp == 0 && i != MAX_BUFFER_SIZE){
             sem_wait(&sDelayConsumer);
         }
     }
@@ -35,10 +39,12 @@ void * consumerFunc(){
 
 void * producerFunc(){
     int i = 0;
-    while(i < NUMBER_OF_JOBS){
+    while(i < MAX_BUFFER_SIZE){
         sem_wait(&sSync);
-        sharedCounter++;
         i++;
+        addLast((char *)'*', head, tail);
+        produced++;
+        sharedCounter++;
         visualisation();
         if(sharedCounter == 1){
             sem_post(&sDelayConsumer);
@@ -50,7 +56,7 @@ void * producerFunc(){
 int main(int argc, char **argv){
     pthread_t consumer, producer;
     int finalSync, finalDelayConsumer;
-    sem_init(&sSync, 0 ,1);
+    sem_init(&sSync, 0 , 1);
     sem_init(&sDelayConsumer, 0 ,0);
     pthread_create(&producer, NULL, producerFunc, NULL);
     pthread_create(&consumer, NULL, consumerFunc, NULL);
@@ -59,6 +65,5 @@ int main(int argc, char **argv){
     sem_getvalue(&sSync, &finalSync);
     sem_getvalue(&sDelayConsumer,&finalDelayConsumer);
     printf("sSync = %d, sDelayConsumer = %d\n", finalSync, finalDelayConsumer);
-
     return 0;
 }
