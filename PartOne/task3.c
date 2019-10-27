@@ -7,8 +7,8 @@
 #include "coursework.h"
 #include "linkedlist.h"
 
-sem_t sSync, sDelayConsumer;
-int produced = 0, consumed = 0, sharedCounter = 0;
+sem_t sSync, sDelayConsumer, sharedCounter;
+int produced = 0, consumed = 0, count;
 //Create head and tail pointers to pointers for the linked list
 struct element *ptrH = NULL, *ptrT = NULL;
 struct element **head = &ptrH, **tail = &ptrT;
@@ -16,9 +16,9 @@ struct element **head = &ptrH, **tail = &ptrT;
 everytime an element is added to or removed from the buffer*/
 void visualisation()
 {
-    struct element *ele;
+    int counter;
     printf("Produced = %d  Consumed = %d  ", produced, consumed);
-    for(int i = 0; i < sharedCounter; i++)
+    for(int i = 0; i < sem_getvalue(&sharedCounter, &counter); i++)
     {
         printf("*");
     }
@@ -33,7 +33,7 @@ void * consumerFunc(){
         i++;
         removeFirst(head, tail);
         consumed++;
-        sharedCounter--;
+        sem_wait(&sharedCounter);
         temp = consumed;
         visualisation();
         sem_post(&sSync);
@@ -45,15 +45,15 @@ void * consumerFunc(){
 
 
 void * producerFunc(){
-    int i = 0;
+    int i = 0, counter;
     while(i < MAX_BUFFER_SIZE){
         sem_wait(&sSync);
         i++;
         addLast((char *)'*', head, tail);
         produced++;
-        sharedCounter++;
+        sem_post(&sharedCounter);
         visualisation();
-        if(sharedCounter == 1){
+        if(sem_getvalue(&sharedCounter, &counter) == 1){
             sem_post(&sDelayConsumer);
         }
         sem_post(&sSync);
