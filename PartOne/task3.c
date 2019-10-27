@@ -29,7 +29,7 @@ void visualisation()
 void * consumerFunc(){
     int i = 0, temp = 0, count;
     sem_wait(&sDelayConsumer);
-    while(i < MAX_BUFFER_SIZE){
+    while(produced < MAX_BUFFER_SIZE){
         sem_wait(&sSync);
         i++;
         removeFirst(head, tail);
