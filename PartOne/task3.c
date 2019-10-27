@@ -16,7 +16,13 @@ struct element **head = &ptrH, **tail = &ptrT;
 everytime an element is added to or removed from the buffer*/
 void visualisation()
 {
-    printf("Produced = %d Consumed = %d\n", produced, consumed);
+    struct element *ele;
+    printf("Produced = %d  Consumed = %d  ", produced, consumed);
+    for(int i = 0; i < sharedCounter; i++)
+    {
+        printf("*");
+    }
+    printf("\n");
 }
 
 void * consumerFunc(){
@@ -58,7 +64,7 @@ int main(int argc, char **argv){
     pthread_t consumer, producer;
     int finalSync, finalDelayConsumer;
     sem_init(&sSync, 0 , 1);
-    sem_init(&sDelayConsumer, 0 ,0);
+    sem_init(&sDelayConsumer, 0 , 0);
     pthread_create(&producer, NULL, producerFunc, NULL);
     pthread_create(&consumer, NULL, consumerFunc, NULL);
     pthread_join(consumer, NULL);
