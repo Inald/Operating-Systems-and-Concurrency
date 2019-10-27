@@ -24,9 +24,9 @@ void * consumerFunc(){
     while(i < MAX_BUFFER_SIZE){
         sem_wait(&sSync);
         i++;
-        temp = consumed;
         removeFirst(head, tail);
         consumed++;
+        temp = consumed;
         sharedCounter--;
         visualisation();
         sem_post(&sSync);
