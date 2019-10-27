@@ -14,7 +14,8 @@ struct element *ptrH = NULL, *ptrT = NULL;
 struct element **head = &ptrH, **tail = &ptrT;
 /*displays the exact number of elements currently in buffer
 everytime an element is added to or removed from the buffer*/
-void visualisation(){
+void visualisation()
+{
     printf("Produced = %d Consumed = %d\n", produced, consumed);
 }
 
@@ -24,10 +25,10 @@ void * consumerFunc(){
     while(i < MAX_BUFFER_SIZE){
         sem_wait(&sSync);
         i++;
-        temp = consumed;
         removeFirst(head, tail);
         consumed++;
         sharedCounter--;
+        temp = consumed;
         visualisation();
         sem_post(&sSync);
         if(temp == 0 && i != MAX_BUFFER_SIZE){
