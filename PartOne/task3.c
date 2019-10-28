@@ -73,7 +73,7 @@ void * producerFunc()
         visualisation();
         sem_post(&sSync);
         //If list is not empty and max jobs not exceeded, wake up consumer
-        if(count >= MAX_BUFFER_SIZE)
+        if(count == 1)
         {
             sem_wait(&sDelayProducer);
         }
