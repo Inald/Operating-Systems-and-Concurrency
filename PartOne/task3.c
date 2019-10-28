@@ -18,11 +18,7 @@ void visualisation()
     struct element *elem;
     int count;
     sem_getvalue(&sFull, &count);
-    if(count > MAX_BUFFER_SIZE)
-    {
-        printf("ahhhhhhhhhhhhhhhhhhhhhh\n");
-    }
-    printf("Produced = %d Consumed = %d: Count: %d ", produced, consumed, count);
+    printf("Produced = %d Consumed = %d ", produced, consumed);
     if(*head)
     {
         for(struct element *elem = *head; elem != NULL; elem = elem ->pNext)
