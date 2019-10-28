@@ -7,8 +7,8 @@
 #include "coursework.h"
 #include "linkedlist.h"
 
-sem_t sSync, sDelayConsumer;
-int produced = 0, consumed = 0, current = 0;
+sem_t sSync, sDelayConsumer, sFull;
+int produced = 0, consumed = 0;
 //Create head and tail pointers to pointers for the linked list
 struct element *ptrH = NULL, *ptrT = NULL;
 struct element **head = &ptrH, **tail = &ptrT;
@@ -16,7 +16,13 @@ struct element **head = &ptrH, **tail = &ptrT;
 void visualisation()
 {
     struct element *elem;
-    printf("Produced = %d Consumed = %d: ", produced, consumed);
+    int count;
+    sem_getvalue(&sFull, &count);
+    if(count > MAX_BUFFER_SIZE)
+    {
+        printf("ahhhhhhhhhhhhhhhhhhhhhh\n");
+    }
+    printf("Produced = %d Consumed = %d: Count: %d ", produced, consumed, count);
     if(*head)
     {
         for(struct element *elem = *head; elem != NULL; elem = elem ->pNext)
@@ -34,9 +40,9 @@ void * consumerFunc()
     while(consumed < MAX_NUMBER_OF_JOBS)
     {
         sem_wait(&sSync);
+        sem_wait(&sFull);
         removeFirst(head, tail);
         consumed++;
-        current--;
         temp = produced - consumed;
         visualisation();
         sem_post(&sSync);
@@ -54,11 +60,12 @@ void * producerFunc()
     while(produced < MAX_NUMBER_OF_JOBS)
     {
         sem_wait(&sSync);
-        if(current < MAX_BUFFER_SIZE)
+        sem_getvalue(&sFull, &count);
+        if(count < MAX_BUFFER_SIZE)
         {
             addLast((char *)'*', head, tail);
             produced++;
-            current++;
+            sem_post(&sFull);
             temp = produced - consumed;
             visualisation();
             if(temp == 1)
@@ -76,12 +83,14 @@ int main(int argc, char **argv)
     int finalSync, finalDelayConsumer, finalFull;
     sem_init(&sSync, 0 , 1);
     sem_init(&sDelayConsumer, 0 , 0);
+    sem_init(&sFull, 0, 0);
     pthread_create(&producer, NULL, producerFunc, NULL);
     pthread_create(&consumer, NULL, consumerFunc, NULL);
     pthread_join(consumer, NULL);
     pthread_join(producer, NULL);
     sem_getvalue(&sSync, &finalSync);
     sem_getvalue(&sDelayConsumer,&finalDelayConsumer);
-    printf("sSync = %d, sDelayConsumer = %d\n", finalSync, finalDelayConsumer);
+    sem_getvalue(&sFull, &finalFull);
+    printf("sSync = %d, sDelayConsumer = %d finalFull = %d\n", finalSync, finalDelayConsumer, finalFull);
     return 0;
 }
