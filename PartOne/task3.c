@@ -7,8 +7,8 @@
 #include "coursework.h"
 #include "linkedlist.h"
 
-sem_t sSync, sDelayConsumer, sFull, sEmpty;
-int produced = 0, consumed = 0;
+sem_t sSync, sDelayConsumer;
+int produced = 0, consumed = 0, current = 0;
 //Create head and tail pointers to pointers for the linked list
 struct element *ptrH = NULL, *ptrT = NULL;
 struct element **head = &ptrH, **tail = &ptrT;
@@ -34,14 +34,11 @@ void * consumerFunc()
     while(consumed < MAX_NUMBER_OF_JOBS)
     {
         sem_wait(&sSync);
-
         removeFirst(head, tail);
-
         consumed++;
+        current--;
         temp = produced - consumed;
-
         visualisation();
-
         sem_post(&sSync);
         if(temp == 0 && consumed != MAX_NUMBER_OF_JOBS)
         {
@@ -53,17 +50,21 @@ void * consumerFunc()
 
 void * producerFunc()
 {
-    int count = 0, temp;
+    int count, temp;
     while(produced < MAX_NUMBER_OF_JOBS)
     {
         sem_wait(&sSync);
-        addLast((char *)'*', head, tail);
-        produced++;
-        temp = produced - consumed;
-        visualisation();
-        if(temp == 1 && produced != MAX_NUMBER_OF_JOBS)
+        if(current < MAX_BUFFER_SIZE)
         {
-            sem_post(&sDelayConsumer);
+            addLast((char *)'*', head, tail);
+            produced++;
+            current++;
+            temp = produced - consumed;
+            visualisation();
+            if(temp == 1)
+            {
+                sem_post(&sDelayConsumer);
+            }
         }
         sem_post(&sSync);
     }
@@ -72,7 +73,7 @@ void * producerFunc()
 int main(int argc, char **argv)
 {
     pthread_t consumer, producer;
-    int finalSync, finalDelayConsumer;
+    int finalSync, finalDelayConsumer, finalFull;
     sem_init(&sSync, 0 , 1);
     sem_init(&sDelayConsumer, 0 , 0);
     pthread_create(&producer, NULL, producerFunc, NULL);
