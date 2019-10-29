@@ -1,21 +1,20 @@
-iIndex = 1
-iIndex = 2
-iIndex = 3
-iIndex = 4
-iIndex = 5
-iIndex = 4
-iIndex = 3
-iIndex = 2
-iIndex = 1
-iIndex = 0
-iIndex = 1
-iIndex = 2
-iIndex = 3
-iIndex = 4
-iIndex = 5
-iIndex = 4
-iIndex = 3
-iIndex = 2
-iIndex = 1
-iIndex = 0
-sSync = 1, sDelayConsumer = 0
+Producer, Produced = 1, Consumed = 0: *
+Producer, Produced = 2, Consumed = 0: **
+Producer, Produced = 3, Consumed = 0: ***
+Producer, Produced = 4, Consumed = 0: ****
+Producer, Produced = 5, Consumed = 0: *****
+Producer, Produced = 6, Consumed = 0: ******
+Producer, Produced = 7, Consumed = 0: *******
+Producer, Produced = 8, Consumed = 0: ********
+Producer, Produced = 9, Consumed = 0: *********
+Producer, Produced = 10, Consumed = 0: **********
+Consumer, Produced = 10, Consumed = 1: *********
+Consumer, Produced = 10, Consumed = 2: ********
+Consumer, Produced = 10, Consumed = 3: *******
+Consumer, Produced = 10, Consumed = 4: ******
+Consumer, Produced = 10, Consumed = 5: *****
+Consumer, Produced = 10, Consumed = 6: ****
+Consumer, Produced = 10, Consumed = 7: ***
+Consumer, Produced = 10, Consumed = 8: **
+Consumer, Produced = 10, Consumed = 9: *
+Consumer, Produced = 10, Consumed = 10: 
