@@ -9,17 +9,28 @@
 
 //Semaphores for sync, delaying consumer and counting number of jobs
 sem_t sSync, sDelayProducer, sFull;
-int produced = 0, consumed = 0;
+int produced = 0, consumed = 0, counter = 0, errors = 0;
 //Create head and tail pointers to pointers for the linked list
 struct element *ptrH = NULL, *ptrT = NULL;
 struct element **head = &ptrH, **tail = &ptrT;
 
-void visualisation()
+void visualisation(int sender, pid_t ID)
 {
+    //Sender is >0 for a producer or 0 for a consumer
     struct element *elem;
-    int count;
-    sem_getvalue(&sFull, &count);
-    printf("Produced = %d Consumed = %d: Count = %d ", produced, consumed, count);
+    if(counter > MAX_BUFFER_SIZE)
+    {
+        printf("ERROR\n\n");
+        errors++;
+    }
+    if(sender > 0)
+    {
+        printf("Producer %d, Produced = %d Consumed = %d: Count = %d ", ID, produced, consumed, counter);
+    }
+    else
+    {
+        printf("Consumer %d, Produced = %d Consumed = %d: Count = %d ", ID, produced, consumed, counter);
+    }
     //Print out element data of each element in the list
     if(*head)
     {
@@ -34,25 +45,21 @@ void visualisation()
 void * consumerFunc()
 {
     int count;
-    sem_wait(&sDelayProducer);
+    pid_t cID = 1;
+    sem_post(&sDelayProducer);
     while(consumed < MAX_NUMBER_OF_JOBS)
     {
         sem_wait(&sSync);
-        sem_getvalue(&sFull, &count);
-        //If list is empty and max jobs isn't exceeded, put to sleep
-        if(count <= 0 && consumed != MAX_NUMBER_OF_JOBS)
+        if(counter > 0)
         {
-            sem_post(&sDelayProducer);
+            removeFirst(head, tail);
+            consumed++;
+            counter--;
+            visualisation(0, cID);
         }
         else
         {
-            //Consumes item at head of list
-            removeFirst(head, tail);
-            consumed++;
-            //Get current no. of items in list, store in count
-            sem_wait(&sFull);
-            //Print list data
-            visualisation();
+            sem_post(&sDelayProducer);
         }
         sem_post(&sSync);
     }
@@ -62,18 +69,16 @@ void * consumerFunc()
 void * producerFunc()
 {
     int count;
+    pid_t pID = 1;
     while(produced < MAX_NUMBER_OF_JOBS)
     {
         sem_wait(&sSync);
-        //Adds element to the list with * character as data
         addLast((char *)'*', head, tail);
         produced++;
-        sem_post(&sFull);
-        sem_getvalue(&sFull, &count);
-        visualisation();
+        counter++;
+        visualisation(1, pID);
         sem_post(&sSync);
-        //If list is not empty and max jobs not exceeded, wake up consumer
-        if(count >= MAX_BUFFER_SIZE)
+        if(counter >= MAX_BUFFER_SIZE && produced < MAX_NUMBER_OF_JOBS)
         {
             sem_wait(&sDelayProducer);
         }
@@ -85,16 +90,16 @@ int main(int argc, char **argv)
     pthread_t consumer, producer;
     int finalSync, finalDelayProducer, finalFull;
     sem_init(&sSync, 0 , 1);
-    sem_init(&sDelayProducer, 0 , 1);
+    sem_init(&sDelayProducer, 0 , 0);
     sem_init(&sFull, 0, 0);
     pthread_create(&producer, NULL, producerFunc, NULL);
     pthread_create(&consumer, NULL, consumerFunc, NULL);
-    pthread_join(consumer, NULL);
     pthread_join(producer, NULL);
+    pthread_join(consumer, NULL);
     //Final values of semapores
     sem_getvalue(&sSync, &finalSync);
     sem_getvalue(&sDelayProducer,&finalDelayProducer);
     sem_getvalue(&sFull, &finalFull);
-    printf("sSync = %d, sDelayProducer = %d, finalFull = %d\n", finalSync, finalDelayProducer, finalFull);
+    printf("sSync = %d, sDelayProducer = %d, finalFull = %d, Errors: %d\n", finalSync, finalDelayProducer, finalFull, errors);
     return 0;
 }
