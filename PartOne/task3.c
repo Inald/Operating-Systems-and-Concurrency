@@ -9,7 +9,7 @@
 
 //Semaphores for sync, delaying consumer and counting number of jobs
 sem_t sSync, sDelayProducer, sFreeElements;
-int produced = 0, consumed = 0;
+int produced = 0, consumed = 0, producerAwake;
 //Create head and tail pointers to pointers for the linked list
 struct element *ptrH = NULL, *ptrT = NULL;
 struct element **head = &ptrH, **tail = &ptrT;
@@ -49,15 +49,19 @@ void * consumerFunc()
         sem_wait(&sSync);
         sem_getvalue(&sFreeElements, &count);
         //printf("sFreeElements = %d\n", count);
-        removeFirst(head, tail);
-        consumed++;
-        visualisation(0, cID);
-        sem_post(&sSync);
-        if(count + 1 >= MAX_BUFFER_SIZE && consumed < MAX_NUMBER_OF_JOBS)
+        if(count + 1 < MAX_BUFFER_SIZE)
         {
+            removeFirst(head, tail);
+            consumed++;
+            visualisation(0, cID);
+            sem_post(&sFreeElements);
+        }
+        if(count + 1 >= MAX_BUFFER_SIZE && consumed < MAX_NUMBER_OF_JOBS && producerAwake == 0)
+        {
+            producerAwake = 1;
             sem_post(&sDelayProducer);
         }
-        sem_post(&sFreeElements);
+        sem_post(&sSync);
     }
 }
 
@@ -68,19 +72,22 @@ void * producerFunc()
     pid_t pID = 1;
     while(produced < MAX_NUMBER_OF_JOBS)
     {
-        sem_wait(&sDelayProducer);
         sem_wait(&sSync);
         sem_getvalue(&sFreeElements, &count);
         //printf("sFreeElements = %d\n", count);
-        addLast((char *)'*', head, tail);
-        produced++;
-        visualisation(1, pID);
-        sem_post(&sSync);
-        if(count - 1 <= 0 && produced < MAX_NUMBER_OF_JOBS)
+        if(count > 0)
         {
+            addLast((char *)'*', head, tail);
+            produced++;
+            visualisation(1, pID);
+            sem_wait(&sFreeElements);
+        }
+        if(count - 1 <= 0 && produced < MAX_NUMBER_OF_JOBS && producerAwake == 1)
+        {
+            producerAwake = 0;
             sem_wait(&sDelayProducer);
         }
-        sem_wait(&sFreeElements);
+        sem_post(&sSync);
     }
 }
 
@@ -89,7 +96,7 @@ int main(int argc, char **argv)
     pthread_t consumer, producer;
     int finalSync, finalDelayProducer, finalElements;
     sem_init(&sSync, 0 , 1);
-    sem_init(&sDelayProducer, 0 , 1);
+    sem_init(&sDelayProducer, 0 , 0);
     sem_init(&sFreeElements, 0, MAX_BUFFER_SIZE);
     pthread_create(&producer, NULL, producerFunc, NULL);
     pthread_create(&consumer, NULL, consumerFunc, NULL);
