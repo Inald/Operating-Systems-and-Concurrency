@@ -56,12 +56,12 @@ void * consumerFunc()
             visualisation(0, cID);
             sem_post(&sFreeElements);
         }
-        if(count + 1 >= MAX_BUFFER_SIZE && consumed < MAX_NUMBER_OF_JOBS && producerAwake == 0)
+        sem_post(&sSync);
+        if(count >= MAX_BUFFER_SIZE && consumed < MAX_NUMBER_OF_JOBS && producerAwake == 0)
         {
             producerAwake = 1;
             sem_post(&sDelayProducer);
         }
-        sem_post(&sSync);
     }
 }
 
@@ -83,7 +83,7 @@ void * producerFunc()
             sem_wait(&sFreeElements);
         }
         sem_post(&sSync);
-        if(count - 1 <= 0 && produced < MAX_NUMBER_OF_JOBS && producerAwake == 1)
+        if(count <= 0 && produced < MAX_NUMBER_OF_JOBS)
         {
             producerAwake = 0;
             sem_wait(&sDelayProducer);
@@ -96,7 +96,7 @@ int main(int argc, char **argv)
     pthread_t consumer, producer;
     int finalSync, finalDelayProducer, finalElements;
     sem_init(&sSync, 0 , 1);
-    sem_init(&sDelayProducer, 0 , 0);
+    sem_init(&sDelayProducer, 0 , 1);
     sem_init(&sFreeElements, 0, MAX_BUFFER_SIZE);
     pthread_create(&producer, NULL, producerFunc, NULL);
     pthread_create(&consumer, NULL, consumerFunc, NULL);
