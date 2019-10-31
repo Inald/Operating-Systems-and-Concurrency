@@ -49,7 +49,7 @@ void * consumerFunc()
         sem_wait(&sSync);
         sem_getvalue(&sFreeElements, &count);
         //printf("sFreeElements = %d\n", count);
-        if(count + 1 < MAX_BUFFER_SIZE)
+        if(count  < MAX_BUFFER_SIZE)
         {
             removeFirst(head, tail);
             consumed++;
@@ -82,12 +82,12 @@ void * producerFunc()
             visualisation(1, pID);
             sem_wait(&sFreeElements);
         }
+        sem_post(&sSync);
         if(count - 1 <= 0 && produced < MAX_NUMBER_OF_JOBS && producerAwake == 1)
         {
             producerAwake = 0;
             sem_wait(&sDelayProducer);
         }
-        sem_post(&sSync);
     }
 }
 
