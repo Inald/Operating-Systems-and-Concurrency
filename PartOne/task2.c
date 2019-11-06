@@ -8,27 +8,44 @@
 #define NUMBER_OF_JOBS 1000
 
 sem_t sSync, sDelayConsumer;
-int sharedCounter = 0;
+int sharedCounter = 0, produced = 0, consumed = 0;
 
 /*displays the exact number of elements currently in buffer
 everytime an element is added to or removed from the buffer*/
-void visualisation(){
-    printf("iIndex = %d\n", sharedCounter);
+void visualisation(int sender, pid_t ID)
+{
+    int count, COUNT2;
+    struct element *elem;
+    //If 0, sender is producer else consumer
+    if(sender > 0)
+    {
+        printf("Producer %d Produced = %d Consumed = %d: ", ID, produced, consumed);
+    }
+    else
+    {
+        printf("Consumer %d Produced = %d Consumed = %d: ", ID, produced, consumed);
+    }
+    for(count = 0; count < sharedCounter; count++)
+    {
+        printf("*");
+    }
+    printf("\n");
 }
 
 /*removes elements and decrements the shared counter for
 every element removed */
 void * consumerFunc(){
-    int i = 0, temp = 0;
+    int temp = 0;
+    pid_t cID = 1;
     sem_wait(&sDelayConsumer);
-    while(i < NUMBER_OF_JOBS){
+    while(consumed < NUMBER_OF_JOBS){
         sem_wait(&sSync);
         sharedCounter--;
-        i++;
+        consumed++;
         temp = sharedCounter;
-        visualisation();
+        visualisation(0, cID);
         sem_post(&sSync);
-        if(temp == 0 && i != NUMBER_OF_JOBS){
+        if(temp == 0 && consumed != NUMBER_OF_JOBS){
             sem_wait(&sDelayConsumer);
         }
     }
@@ -37,12 +54,13 @@ void * consumerFunc(){
 /* adds elements and increments the shared counter for every
 element added*/
 void * producerFunc(){
-    int i = 0;
-    while(i < NUMBER_OF_JOBS){
+    pid_t pID = 1;
+    while(produced < NUMBER_OF_JOBS){
         sem_wait(&sSync);
         sharedCounter++;
-        i++;
-        visualisation();
+        produced++;
+        visualisation(1, pID);
+        //Wake up consumer
         if(sharedCounter == 1){
             sem_post(&sDelayConsumer);
         }
@@ -62,6 +80,5 @@ int main(int argc, char **argv){
     sem_getvalue(&sSync, &finalSync);
     sem_getvalue(&sDelayConsumer,&finalDelayConsumer);
     printf("sSync = %d, sDelayConsumer = %d\n", finalSync, finalDelayConsumer);
-
     return 0;
 }

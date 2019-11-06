@@ -1,12 +1,103 @@
-Process Id = 0, Previous Burst Time = 34, New Burst Time = 0, Response Time = 0, Turn Around Time = 34
-Process Id = 1, Previous Burst Time = 28, New Burst Time = 0, Response Time = 34, Turn Around Time = 62
-Process Id = 2, Previous Burst Time = 44, New Burst Time = 0, Response Time = 62, Turn Around Time = 106
-Process Id = 3, Previous Burst Time = 37, New Burst Time = 0, Response Time = 106, Turn Around Time = 143
-Process Id = 4, Previous Burst Time = 50, New Burst Time = 0, Response Time = 143, Turn Around Time = 193
-Process Id = 5, Previous Burst Time = 13, New Burst Time = 0, Response Time = 193, Turn Around Time = 206
-Process Id = 6, Previous Burst Time = 41, New Burst Time = 0, Response Time = 206, Turn Around Time = 247
-Process Id = 7, Previous Burst Time = 14, New Burst Time = 0, Response Time = 247, Turn Around Time = 261
-Process Id = 8, Previous Burst Time = 41, New Burst Time = 0, Response Time = 261, Turn Around Time = 302
-Process Id = 9, Previous Burst Time = 23, New Burst Time = 0, Response Time = 302, Turn Around Time = 325
-Average response time = 155.400000
-Average turn around time = 187.900000
+Process ID = 0, Previous Burst Time = 34, New Burst Time = 0, Response Time = 0, Turnaround Time = 34
+Process ID = 1, Previous Burst Time = 28, New Burst Time = 0, Response Time = 34, Turnaround Time = 62
+Process ID = 2, Previous Burst Time = 44, New Burst Time = 0, Response Time = 62, Turnaround Time = 106
+Process ID = 3, Previous Burst Time = 37, New Burst Time = 0, Response Time = 106, Turnaround Time = 143
+Process ID = 4, Previous Burst Time = 50, New Burst Time = 0, Response Time = 143, Turnaround Time = 193
+Process ID = 5, Previous Burst Time = 13, New Burst Time = 0, Response Time = 193, Turnaround Time = 206
+Process ID = 6, Previous Burst Time = 41, New Burst Time = 0, Response Time = 206, Turnaround Time = 247
+Process ID = 7, Previous Burst Time = 14, New Burst Time = 0, Response Time = 247, Turnaround Time = 261
+Process ID = 8, Previous Burst Time = 41, New Burst Time = 0, Response Time = 261, Turnaround Time = 302
+Process ID = 9, Previous Burst Time = 23, New Burst Time = 0, Response Time = 302, Turnaround Time = 325
+Process ID = 10, Previous Burst Time = 12, New Burst Time = 0, Response Time = 325, Turnaround Time = 337
+Process ID = 11, Previous Burst Time = 18, New Burst Time = 0, Response Time = 337, Turnaround Time = 355
+Process ID = 12, Previous Burst Time = 33, New Burst Time = 0, Response Time = 355, Turnaround Time = 388
+Process ID = 13, Previous Burst Time = 13, New Burst Time = 0, Response Time = 388, Turnaround Time = 401
+Process ID = 14, Previous Burst Time = 18, New Burst Time = 0, Response Time = 401, Turnaround Time = 419
+Process ID = 15, Previous Burst Time = 30, New Burst Time = 0, Response Time = 419, Turnaround Time = 449
+Process ID = 16, Previous Burst Time = 23, New Burst Time = 0, Response Time = 449, Turnaround Time = 472
+Process ID = 17, Previous Burst Time = 20, New Burst Time = 0, Response Time = 472, Turnaround Time = 492
+Process ID = 18, Previous Burst Time = 44, New Burst Time = 0, Response Time = 492, Turnaround Time = 536
+Process ID = 19, Previous Burst Time = 12, New Burst Time = 0, Response Time = 536, Turnaround Time = 548
+Process ID = 20, Previous Burst Time = 30, New Burst Time = 0, Response Time = 548, Turnaround Time = 578
+Process ID = 21, Previous Burst Time = 22, New Burst Time = 0, Response Time = 578, Turnaround Time = 600
+Process ID = 22, Previous Burst Time = 35, New Burst Time = 0, Response Time = 600, Turnaround Time = 635
+Process ID = 23, Previous Burst Time = 49, New Burst Time = 0, Response Time = 635, Turnaround Time = 684
+Process ID = 24, Previous Burst Time = 16, New Burst Time = 0, Response Time = 684, Turnaround Time = 700
+Process ID = 25, Previous Burst Time = 14, New Burst Time = 0, Response Time = 700, Turnaround Time = 714
+Process ID = 26, Previous Burst Time = 42, New Burst Time = 0, Response Time = 714, Turnaround Time = 756
+Process ID = 27, Previous Burst Time = 7, New Burst Time = 0, Response Time = 756, Turnaround Time = 763
+Process ID = 28, Previous Burst Time = 13, New Burst Time = 0, Response Time = 763, Turnaround Time = 776
+Process ID = 29, Previous Burst Time = 47, New Burst Time = 0, Response Time = 776, Turnaround Time = 823
+Process ID = 30, Previous Burst Time = 6, New Burst Time = 0, Response Time = 823, Turnaround Time = 829
+Process ID = 31, Previous Burst Time = 35, New Burst Time = 0, Response Time = 829, Turnaround Time = 864
+Process ID = 32, Previous Burst Time = 37, New Burst Time = 0, Response Time = 864, Turnaround Time = 901
+Process ID = 33, Previous Burst Time = 47, New Burst Time = 0, Response Time = 901, Turnaround Time = 948
+Process ID = 34, Previous Burst Time = 14, New Burst Time = 0, Response Time = 948, Turnaround Time = 962
+Process ID = 35, Previous Burst Time = 25, New Burst Time = 0, Response Time = 962, Turnaround Time = 987
+Process ID = 36, Previous Burst Time = 33, New Burst Time = 0, Response Time = 987, Turnaround Time = 1020
+Process ID = 37, Previous Burst Time = 15, New Burst Time = 0, Response Time = 1020, Turnaround Time = 1035
+Process ID = 38, Previous Burst Time = 35, New Burst Time = 0, Response Time = 1035, Turnaround Time = 1070
+Process ID = 39, Previous Burst Time = 44, New Burst Time = 0, Response Time = 1070, Turnaround Time = 1114
+Process ID = 40, Previous Burst Time = 38, New Burst Time = 0, Response Time = 1114, Turnaround Time = 1152
+Process ID = 41, Previous Burst Time = 27, New Burst Time = 0, Response Time = 1152, Turnaround Time = 1179
+Process ID = 42, Previous Burst Time = 39, New Burst Time = 0, Response Time = 1179, Turnaround Time = 1218
+Process ID = 43, Previous Burst Time = 4, New Burst Time = 0, Response Time = 1218, Turnaround Time = 1222
+Process ID = 44, Previous Burst Time = 5, New Burst Time = 0, Response Time = 1222, Turnaround Time = 1227
+Process ID = 45, Previous Burst Time = 33, New Burst Time = 0, Response Time = 1227, Turnaround Time = 1260
+Process ID = 46, Previous Burst Time = 27, New Burst Time = 0, Response Time = 1260, Turnaround Time = 1287
+Process ID = 47, Previous Burst Time = 40, New Burst Time = 0, Response Time = 1287, Turnaround Time = 1327
+Process ID = 48, Previous Burst Time = 27, New Burst Time = 0, Response Time = 1327, Turnaround Time = 1354
+Process ID = 49, Previous Burst Time = 45, New Burst Time = 0, Response Time = 1354, Turnaround Time = 1399
+Process ID = 50, Previous Burst Time = 46, New Burst Time = 0, Response Time = 1399, Turnaround Time = 1445
+Process ID = 51, Previous Burst Time = 35, New Burst Time = 0, Response Time = 1445, Turnaround Time = 1480
+Process ID = 52, Previous Burst Time = 18, New Burst Time = 0, Response Time = 1480, Turnaround Time = 1503
+Process ID = 53, Previous Burst Time = 48, New Burst Time = 0, Response Time = 1503, Turnaround Time = 1551
+Process ID = 54, Previous Burst Time = 18, New Burst Time = 0, Response Time = 1551, Turnaround Time = 1569
+Process ID = 55, Previous Burst Time = 3, New Burst Time = 0, Response Time = 1569, Turnaround Time = 1572
+Process ID = 56, Previous Burst Time = 2, New Burst Time = 0, Response Time = 1572, Turnaround Time = 1574
+Process ID = 57, Previous Burst Time = 37, New Burst Time = 0, Response Time = 1574, Turnaround Time = 1615
+Process ID = 58, Previous Burst Time = 16, New Burst Time = 0, Response Time = 1615, Turnaround Time = 1631
+Process ID = 59, Previous Burst Time = 45, New Burst Time = 0, Response Time = 1631, Turnaround Time = 1676
+Process ID = 60, Previous Burst Time = 41, New Burst Time = 0, Response Time = 1676, Turnaround Time = 1717
+Process ID = 61, Previous Burst Time = 32, New Burst Time = 0, Response Time = 1717, Turnaround Time = 1749
+Process ID = 62, Previous Burst Time = 48, New Burst Time = 0, Response Time = 1749, Turnaround Time = 1797
+Process ID = 63, Previous Burst Time = 32, New Burst Time = 0, Response Time = 1797, Turnaround Time = 1829
+Process ID = 64, Previous Burst Time = 10, New Burst Time = 0, Response Time = 1829, Turnaround Time = 1839
+Process ID = 65, Previous Burst Time = 18, New Burst Time = 0, Response Time = 1839, Turnaround Time = 1857
+Process ID = 66, Previous Burst Time = 48, New Burst Time = 0, Response Time = 1857, Turnaround Time = 1910
+Process ID = 67, Previous Burst Time = 37, New Burst Time = 0, Response Time = 1910, Turnaround Time = 1947
+Process ID = 68, Previous Burst Time = 7, New Burst Time = 0, Response Time = 1947, Turnaround Time = 1954
+Process ID = 69, Previous Burst Time = 20, New Burst Time = 0, Response Time = 1954, Turnaround Time = 1974
+Process ID = 70, Previous Burst Time = 29, New Burst Time = 0, Response Time = 1974, Turnaround Time = 2003
+Process ID = 71, Previous Burst Time = 33, New Burst Time = 0, Response Time = 2003, Turnaround Time = 2038
+Process ID = 72, Previous Burst Time = 4, New Burst Time = 0, Response Time = 2038, Turnaround Time = 2042
+Process ID = 73, Previous Burst Time = 21, New Burst Time = 0, Response Time = 2042, Turnaround Time = 2063
+Process ID = 74, Previous Burst Time = 9, New Burst Time = 0, Response Time = 2063, Turnaround Time = 2072
+Process ID = 75, Previous Burst Time = 41, New Burst Time = 0, Response Time = 2072, Turnaround Time = 2113
+Process ID = 76, Previous Burst Time = 47, New Burst Time = 0, Response Time = 2113, Turnaround Time = 2160
+Process ID = 77, Previous Burst Time = 19, New Burst Time = 0, Response Time = 2160, Turnaround Time = 2179
+Process ID = 78, Previous Burst Time = 47, New Burst Time = 0, Response Time = 2179, Turnaround Time = 2226
+Process ID = 79, Previous Burst Time = 22, New Burst Time = 0, Response Time = 2226, Turnaround Time = 2248
+Process ID = 80, Previous Burst Time = 30, New Burst Time = 0, Response Time = 2248, Turnaround Time = 2278
+Process ID = 81, Previous Burst Time = 15, New Burst Time = 0, Response Time = 2278, Turnaround Time = 2293
+Process ID = 82, Previous Burst Time = 42, New Burst Time = 0, Response Time = 2293, Turnaround Time = 2335
+Process ID = 83, Previous Burst Time = 44, New Burst Time = 0, Response Time = 2335, Turnaround Time = 2379
+Process ID = 84, Previous Burst Time = 35, New Burst Time = 0, Response Time = 2379, Turnaround Time = 2414
+Process ID = 85, Previous Burst Time = 25, New Burst Time = 0, Response Time = 2414, Turnaround Time = 2441
+Process ID = 86, Previous Burst Time = 38, New Burst Time = 0, Response Time = 2441, Turnaround Time = 2479
+Process ID = 87, Previous Burst Time = 44, New Burst Time = 0, Response Time = 2479, Turnaround Time = 2523
+Process ID = 88, Previous Burst Time = 28, New Burst Time = 0, Response Time = 2523, Turnaround Time = 2551
+Process ID = 89, Previous Burst Time = 10, New Burst Time = 0, Response Time = 2551, Turnaround Time = 2561
+Process ID = 90, Previous Burst Time = 33, New Burst Time = 0, Response Time = 2561, Turnaround Time = 2594
+Process ID = 91, Previous Burst Time = 38, New Burst Time = 0, Response Time = 2594, Turnaround Time = 2632
+Process ID = 92, Previous Burst Time = 26, New Burst Time = 0, Response Time = 2632, Turnaround Time = 2658
+Process ID = 93, Previous Burst Time = 25, New Burst Time = 0, Response Time = 2658, Turnaround Time = 2685
+Process ID = 94, Previous Burst Time = 9, New Burst Time = 0, Response Time = 2685, Turnaround Time = 2694
+Process ID = 95, Previous Burst Time = 30, New Burst Time = 0, Response Time = 2694, Turnaround Time = 2724
+Process ID = 96, Previous Burst Time = 36, New Burst Time = 0, Response Time = 2724, Turnaround Time = 2760
+Process ID = 97, Previous Burst Time = 19, New Burst Time = 0, Response Time = 2760, Turnaround Time = 2779
+Process ID = 98, Previous Burst Time = 44, New Burst Time = 0, Response Time = 2779, Turnaround Time = 2823
+Process ID = 99, Previous Burst Time = 29, New Burst Time = 0, Response Time = 2823, Turnaround Time = 2852
+Average response time = 1395.960000
+Average turnaround time = 1424.480000
+

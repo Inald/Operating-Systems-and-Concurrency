@@ -16,7 +16,6 @@ struct element **head = &ptrH, **tail = &ptrT;
 
 void visualisation(int sender, pid_t ID)
 {
-    int count, COUNT2;
     struct element *elem;
     //If 0, sender is producer else consumer
     if(sender > 0)
@@ -40,14 +39,14 @@ void visualisation(int sender, pid_t ID)
 
 void * consumerFunc()
 {
-    int count, producing; 
+    int count; 
     pid_t cID = 1;
     while(consumed < MAX_NUMBER_OF_JOBS)
     {
         sem_wait(&sSync);
         sem_getvalue(&sFreeElements, &count);
-        //printf("sFreeElements = %d\n", count);
-        if(count  < MAX_BUFFER_SIZE)
+        //If elements exist, can remove
+        if(count < MAX_BUFFER_SIZE)
         {
             removeFirst(head, tail);
             consumed++;
@@ -55,12 +54,11 @@ void * consumerFunc()
             sem_post(&sFreeElements);
         }
         sem_post(&sSync);
-        if(count >= MAX_BUFFER_SIZE && consumed < MAX_NUMBER_OF_JOBS && producerAwake == 0)
+        //Wake up producer
+        if(consumed < MAX_NUMBER_OF_JOBS && producerAwake == 0)
         {
             producerAwake = 1;
             sem_post(&sDelayProducer);
-            sem_getvalue(&sDelayProducer, &producing);
-            printf("sDelayProducer = %d\n", producing);
         }
     }
 }
@@ -68,13 +66,13 @@ void * consumerFunc()
 
 void * producerFunc()
 {
-    int count, producing;
+    int count;
     pid_t pID = 1;
     while(produced < MAX_NUMBER_OF_JOBS)
     {
         sem_wait(&sSync);
         sem_getvalue(&sFreeElements, &count);
-        //printf("sFreeElements = %d\n", count);
+        //If free space exists in buffer, add to buffer
         if(count > 0)
         {
             addLast((char *)'*', head, tail);
@@ -83,12 +81,11 @@ void * producerFunc()
             sem_wait(&sFreeElements);
         }
         sem_post(&sSync);
-        if(count <= 0 && produced < MAX_NUMBER_OF_JOBS && producerAwake == 1)
+        //Sleep producer
+        if(produced < MAX_NUMBER_OF_JOBS && producerAwake == 1)
         {
             producerAwake = 0;
             sem_wait(&sDelayProducer);
-            sem_getvalue(&sDelayProducer, &producing);
-            printf("sDelayProducer = %d\n", producing);
         }
     }
 }
