@@ -18,3 +18,4 @@ Consumer 1, Produced = 10, Consumed = 7: ***
 Consumer 1, Produced = 10, Consumed = 8: **
 Consumer 1, Produced = 10, Consumed = 9: *
 Consumer 1, Produced = 10, Consumed = 10: 
+<semaphore values go here>

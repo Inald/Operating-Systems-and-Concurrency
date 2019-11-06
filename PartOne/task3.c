@@ -9,7 +9,7 @@
 
 //Semaphores for sync, delaying consumer and counting number of jobs
 sem_t sSync, sDelayProducer, sFreeElements;
-int produced = 0, consumed = 0, producerAwake;
+int produced = 0, consumed = 0, producerAwake = 0;
 //Create head and tail pointers to pointers for the linked list
 struct element *ptrH = NULL, *ptrT = NULL;
 struct element **head = &ptrH, **tail = &ptrT;
@@ -18,8 +18,6 @@ void visualisation(int sender, pid_t ID)
 {
     int count, COUNT2;
     struct element *elem;
-    sem_getvalue(&sDelayProducer, &count);
-    printf("sDelayProducer = %d\n", count);
     //If 0, sender is producer else consumer
     if(sender > 0)
     {
@@ -42,7 +40,7 @@ void visualisation(int sender, pid_t ID)
 
 void * consumerFunc()
 {
-    int count; 
+    int count, producing; 
     pid_t cID = 1;
     while(consumed < MAX_NUMBER_OF_JOBS)
     {
@@ -61,6 +59,8 @@ void * consumerFunc()
         {
             producerAwake = 1;
             sem_post(&sDelayProducer);
+            sem_getvalue(&sDelayProducer, &producing);
+            printf("sDelayProducer = %d\n", producing);
         }
     }
 }
@@ -68,7 +68,7 @@ void * consumerFunc()
 
 void * producerFunc()
 {
-    int count;
+    int count, producing;
     pid_t pID = 1;
     while(produced < MAX_NUMBER_OF_JOBS)
     {
@@ -83,10 +83,12 @@ void * producerFunc()
             sem_wait(&sFreeElements);
         }
         sem_post(&sSync);
-        if(count <= 0 && produced < MAX_NUMBER_OF_JOBS)
+        if(count <= 0 && produced < MAX_NUMBER_OF_JOBS && producerAwake == 1)
         {
             producerAwake = 0;
             sem_wait(&sDelayProducer);
+            sem_getvalue(&sDelayProducer, &producing);
+            printf("sDelayProducer = %d\n", producing);
         }
     }
 }
@@ -96,7 +98,7 @@ int main(int argc, char **argv)
     pthread_t consumer, producer;
     int finalSync, finalDelayProducer, finalElements;
     sem_init(&sSync, 0 , 1);
-    sem_init(&sDelayProducer, 0 , 1);
+    sem_init(&sDelayProducer, 0 , 0);
     sem_init(&sFreeElements, 0, MAX_BUFFER_SIZE);
     pthread_create(&producer, NULL, producerFunc, NULL);
     pthread_create(&consumer, NULL, consumerFunc, NULL);
