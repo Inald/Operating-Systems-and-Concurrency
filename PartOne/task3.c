@@ -7,7 +7,8 @@
 #include "coursework.h"
 #include "linkedlist.h"
 
-//Semaphores for sync, delaying consumer and counting number of jobs
+//Semaphores for sync, delaying consumer
+//Counting semaphore represents number of free elements (number of jobs not filled)
 sem_t sSync, sDelayProducer, sFreeElements;
 int produced = 0, consumed = 0, producerAwake = 0;
 //Create head and tail pointers to pointers for the linked list
@@ -68,6 +69,7 @@ void * producerFunc()
 {
     int count;
     pid_t pID = 1;
+    sem_wait(&sDelayProducer);
     while(produced < MAX_NUMBER_OF_JOBS)
     {
         sem_wait(&sSync);
@@ -95,7 +97,7 @@ int main(int argc, char **argv)
     pthread_t consumer, producer;
     int finalSync, finalDelayProducer, finalElements;
     sem_init(&sSync, 0 , 1);
-    sem_init(&sDelayProducer, 0 , 0);
+    sem_init(&sDelayProducer, 0 , 1);
     sem_init(&sFreeElements, 0, MAX_BUFFER_SIZE);
     pthread_create(&producer, NULL, producerFunc, NULL);
     pthread_create(&consumer, NULL, consumerFunc, NULL);
