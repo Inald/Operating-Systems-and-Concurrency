@@ -35,35 +35,24 @@ void algorithmRR(struct element **head, struct element **tail)
     response = turnAround;
     //Get difference in time between creation and most recent time.
     turnAround += getDifferenceInMilliSeconds(created, finished);
+    printf("Process ID = %d, Priority = %d, Previous Burst Time = %d, Remaining Burst Time = %d", pid, priority, pBurst, rBurst);
+    //Print response time if first time responding
+    if(responseCount < MAX_NUMBER_OF_JOBS)
+    {
+      responseCount++;
+      sumResponse += response;
+      printf(", Response time = %d", response);
+    }
     //If process isn't finished...
     if(rBurst > 0)
     {
-      printf("Process ID = %d, Priority = %d, Previous Burst Time = %d, Remaining Burst Time = %d", pid, priority, pBurst, rBurst);
-      //If first time responding to process, response time...
-      if(responseCount < MAX_NUMBER_OF_JOBS)
-      {
-        responseCount++;
-        sumResponse += response;
-        printf(", Response time = %d\n", response);
-      }
-      else
-      {
-        printf ("\n");
-      }
+      printf ("\n");
       //Add process back onto list
       addLast(currentProcess, head, tail);
     }
     else
     {
       sumTurnAround += turnAround;
-      printf("Process ID = %d, Priority = %d, Previous Burst Time = %d, Remaining Burst Time = %d", pid, priority, pBurst, rBurst);
-      //If process finishes upon initial response
-      if(responseCount < MAX_NUMBER_OF_JOBS)
-      {
-        responseCount++;
-        sumResponse += response;
-        printf(", Response time = %d", response);
-      }
       printf(", Turnaround time = %d\n", turnAround);
       free(currentProcess);
     }

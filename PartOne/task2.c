@@ -12,9 +12,9 @@ int sharedCounter = 0, produced = 0, consumed = 0;
 
 /*displays the exact number of elements currently in buffer
 everytime an element is added to or removed from the buffer*/
-void visualisation(int sender, pid_t ID)
+void visualisation(int sender, int ID)
 {
-    int count, COUNT2;
+    int count;
     struct element *elem;
     //If 0, sender is producer else consumer
     if(sender > 0)
@@ -35,8 +35,7 @@ void visualisation(int sender, pid_t ID)
 /*removes elements and decrements the shared counter for
 every element removed */
 void * consumerFunc(){
-    int temp = 0;
-    pid_t cID = 1;
+    int temp = 0, cID = 1;
     sem_wait(&sDelayConsumer);
     while(consumed < NUMBER_OF_JOBS){
         sem_wait(&sSync);
@@ -45,6 +44,7 @@ void * consumerFunc(){
         temp = sharedCounter;
         visualisation(0, cID);
         sem_post(&sSync);
+        //Sleep consumer
         if(temp == 0 && consumed != NUMBER_OF_JOBS){
             sem_wait(&sDelayConsumer);
         }
@@ -54,7 +54,7 @@ void * consumerFunc(){
 /* adds elements and increments the shared counter for every
 element added*/
 void * producerFunc(){
-    pid_t pID = 1;
+    int pID = 1;
     while(produced < NUMBER_OF_JOBS){
         sem_wait(&sSync);
         sharedCounter++;

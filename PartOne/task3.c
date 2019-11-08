@@ -15,7 +15,7 @@ int produced = 0, consumed = 0, producerAwake = 0;
 struct element *ptrH = NULL, *ptrT = NULL;
 struct element **head = &ptrH, **tail = &ptrT;
 
-void visualisation(int sender, pid_t ID)
+void visualisation(int sender, int ID)
 {
     struct element *elem;
     //If 0, sender is producer else consumer
@@ -40,8 +40,7 @@ void visualisation(int sender, pid_t ID)
 
 void * consumerFunc()
 {
-    int count; 
-    pid_t cID = 1;
+    int count, cID = 1; 
     while(consumed < MAX_NUMBER_OF_JOBS)
     {
         sem_wait(&sSync);
@@ -67,8 +66,7 @@ void * consumerFunc()
 
 void * producerFunc()
 {
-    int count;
-    pid_t pID = 1;
+    int count, pID = 1;
     sem_wait(&sDelayProducer);
     while(produced < MAX_NUMBER_OF_JOBS)
     {
