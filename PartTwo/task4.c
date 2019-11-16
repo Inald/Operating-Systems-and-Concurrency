@@ -10,12 +10,11 @@
 //Semaphores for sync, delaying consumer
 //Counting semaphore represents number of free elements (number of jobs not filled)
 sem_t sSync, sDelayProducer, sFreeElements;
-int produced = 0, consumed = 0, producerAwake = 0, consumerCount = 3, numOfBuffers = 0;
+int produced = 0, consumed = 0, producerAwake = 0;
 //Create head and tail pointers to pointers for the linked list
-struct element *ptrH = NULL, *ptrT = NULL;
-struct element **head = &ptrH, **tail = &ptrT;
-struct element *headArray[sizeof(struct element) * MAX_PRIORITY];
-struct element *tailArray[sizeof(struct element) * MAX_PRIORITY];
+struct element **priorityArray[MAX_PRIORITY];
+struct element **head, **tail;
+
 
 void visualisation(int sender, int ID)
 {
@@ -29,20 +28,12 @@ void visualisation(int sender, int ID)
     {
         printf("Consumer %d Produced = %d Consumed = %d: ", ID, produced, consumed);
     }
-    //Print out element data of each element in the list
-    if(*head)
-    {
-        for(struct element *elem = *head; elem != NULL; elem = elem ->pNext)
-        {
-            printf("%c", elem -> pData);
-        }
-    }
     printf("\n");
 }
 
-void * consumerFunc(void* id)
+void * consumerFunc(void *id)
 {
-    int count, cID = (*(int *)id); 
+    int count, cID = *((int*)id); 
     struct process * firstProcess;
     while(consumed < MAX_NUMBER_OF_JOBS)
     {
@@ -67,9 +58,9 @@ void * consumerFunc(void* id)
 }
 
 
-void * producerFunc()
+void * producerFunc(void *id)
 {
-    int count, pID = 1;
+    int count, pID = (*(int *)id);
     sem_wait(&sDelayProducer);
     while(produced < NUMBER_OF_JOBS)
     {
@@ -93,28 +84,27 @@ void * producerFunc()
     }
 }
 
-void createBuffer()
-{
-    struct element *queue = NULL;
-    addLast(queue, headArray, tailArray);
-}
 int main(int argc, char **argv)
 {
     pthread_t consumer, producer;
-    int finalSync, finalDelayProducer, finalElements, id;
+    int finalSync, finalDelayProducer, finalElements;
     for(int i = 0; i < MAX_PRIORITY; i++)
     {
-        createBuffer();
+        priorityArray[i] = NULL;
     }
+    head = priorityArray[0];
+    tail = priorityArray[MAX_PRIORITY - 1];
     sem_init(&sSync, 0 , 1);
     sem_init(&sDelayProducer, 0 , 1);
     sem_init(&sFreeElements, 0, MAX_BUFFER_SIZE);
-    pthread_create(&producer, NULL, producerFunc, NULL);
-    //Add multiple consumeCount amounts of consumers, with associated ids
-    for(int i = 1; i <= consumerCount; i++)
+    for(int i = 0; i < NUMBER_OF_PRODUCERS; i++)
     {
-        id = i;
-        pthread_create(&consumer, NULL, consumerFunc, (void *)&id);
+        pthread_create(&producer, NULL, producerFunc, (void *) &i);
+    }
+    //Add multiple consumeCount amounts of consumers, with associated ids
+    for(int i = 0; i < NUMBER_OF_CONSUMERS; i++)
+    {
+        pthread_create(&consumer, NULL, consumerFunc, (void *)&i);
     }
     pthread_join(producer, NULL);
     pthread_join(consumer, NULL);
