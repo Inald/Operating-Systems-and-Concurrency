@@ -17,6 +17,7 @@ struct element **head = &ptrH, **tail = &ptrT;
 
 void visualisation(int sender, int ID)
 {
+    int count, COUNT2;
     struct element *elem;
     //If 0, sender is producer else consumer
     if(sender > 0)
