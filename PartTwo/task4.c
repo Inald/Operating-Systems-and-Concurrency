@@ -34,22 +34,32 @@ void visualisation(int sender, int ID)
 void * consumerFunc(void *id)
 {
     int count, cID = *((int*)id); 
-    struct process * firstProcess;
-    while(consumed < MAX_NUMBER_OF_JOBS)
+    struct process *firstProcess;
+    struct timeval start, end;
+    while(consumed < NUMBER_OF_JOBS)
     {
         sem_wait(&sSync);
         sem_getvalue(&sFreeElements, &count);
+        printf("Test 1\n");
         //If elements exist, can remove
         if(count < MAX_BUFFER_SIZE)
         {
-            firstProcess = removeFirst(head, tail);
-            consumed++;
+            for(int i = 0; i < MAX_PRIORITY; i++)
+            {
+                printf("Test 2\n");
+                firstProcess = ((struct process *)*priorityArray[i]);
+                printf("Test 3\n");
+                start = firstProcess -> oTimeCreated;
+                end = firstProcess -> oMostRecentTime;
+                printf("Test 6\n");
+                consumed++;
+            }
             visualisation(0, cID);
             sem_post(&sFreeElements);
         }
         sem_post(&sSync);
         //Wake up producer
-        if(consumed < MAX_NUMBER_OF_JOBS && producerAwake == 0)
+        if(consumed < NUMBER_OF_JOBS && producerAwake == 0)
         {
             producerAwake = 1;
             sem_post(&sDelayProducer);
@@ -61,22 +71,34 @@ void * consumerFunc(void *id)
 void * producerFunc(void *id)
 {
     int count, pID = (*(int *)id);
+    struct process *newProcess;
     sem_wait(&sDelayProducer);
     while(produced < NUMBER_OF_JOBS)
     {
         sem_wait(&sSync);
         sem_getvalue(&sFreeElements, &count);
+        printf("Test 4\n");
         //If free space exists in buffer, add to buffer
         if(count > 0)
         {
-            addLast(generateProcess(), head, tail);
-            produced++;
+            newProcess = generateProcess();
+            printf("Test 5\n");
+            for(int i = 0; i < MAX_PRIORITY; i++)
+            {
+                if(newProcess -> iPriority == i)
+                {
+                    printf("Test 6\n");
+                    addLast(newProcess, priorityArray[i], priorityArray[i]);
+                    printf("Test 7\n");
+                    produced++;
+                }
+            }
             visualisation(1, pID);
             sem_wait(&sFreeElements);
         }
         sem_post(&sSync);
         //Sleep producer
-        if(produced < MAX_NUMBER_OF_JOBS && producerAwake == 1)
+        if(produced < NUMBER_OF_JOBS && producerAwake == 1)
         {
             producerAwake = 0;
             sem_wait(&sDelayProducer);
@@ -87,21 +109,21 @@ void * producerFunc(void *id)
 int main(int argc, char **argv)
 {
     pthread_t consumer, producer;
-    int finalSync, finalDelayProducer, finalElements;
+    int finalSync, finalDelayProducer, finalElements, id;
     for(int i = 0; i < MAX_PRIORITY; i++)
     {
-        priorityArray[i] = NULL;
+        priorityArray[i] = malloc(sizeof(struct process *) * MAX_BUFFER_SIZE);
     }
-    head = &priorityArray[0];
-    tail = &priorityArray[MAX_PRIORITY - 1];
+    head = priorityArray[0];
+    tail = priorityArray[MAX_PRIORITY - 1];
     sem_init(&sSync, 0 , 1);
     sem_init(&sDelayProducer, 0 , 1);
     sem_init(&sFreeElements, 0, MAX_BUFFER_SIZE);
+    //Create producer and consumers
     for(int i = 0; i < NUMBER_OF_PRODUCERS; i++)
     {
-        pthread_create(&producer, NULL, producerFunc, (void *) &i);
+        pthread_create(&producer, NULL, producerFunc, (void *)&i);
     }
-    //Add multiple consumeCount amounts of consumers, with associated ids
     for(int i = 0; i < NUMBER_OF_CONSUMERS; i++)
     {
         pthread_create(&consumer, NULL, consumerFunc, (void *)&i);
