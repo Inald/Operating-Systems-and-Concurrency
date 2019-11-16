@@ -10,10 +10,12 @@
 //Semaphores for sync, delaying consumer
 //Counting semaphore represents number of free elements (number of jobs not filled)
 sem_t sSync, sDelayProducer, sFreeElements;
-int produced = 0, consumed = 0, producerAwake = 0, consumerCount = 3;
+int produced = 0, consumed = 0, producerAwake = 0, consumerCount = 3, numOfBuffers = 0;
 //Create head and tail pointers to pointers for the linked list
 struct element *ptrH = NULL, *ptrT = NULL;
 struct element **head = &ptrH, **tail = &ptrT;
+struct element *headArray[sizeof(struct element) * MAX_PRIORITY];
+struct element *tailArray[sizeof(struct element) * MAX_PRIORITY];
 
 void visualisation(int sender, int ID)
 {
@@ -41,6 +43,7 @@ void visualisation(int sender, int ID)
 void * consumerFunc(void* id)
 {
     int count, cID = (*(int *)id); 
+    struct process * firstProcess;
     while(consumed < MAX_NUMBER_OF_JOBS)
     {
         sem_wait(&sSync);
@@ -48,7 +51,7 @@ void * consumerFunc(void* id)
         //If elements exist, can remove
         if(count < MAX_BUFFER_SIZE)
         {
-            removeFirst(head, tail);
+            firstProcess = removeFirst(head, tail);
             consumed++;
             visualisation(0, cID);
             sem_post(&sFreeElements);
@@ -68,14 +71,14 @@ void * producerFunc()
 {
     int count, pID = 1;
     sem_wait(&sDelayProducer);
-    while(produced < MAX_NUMBER_OF_JOBS)
+    while(produced < NUMBER_OF_JOBS)
     {
         sem_wait(&sSync);
         sem_getvalue(&sFreeElements, &count);
         //If free space exists in buffer, add to buffer
         if(count > 0)
         {
-            addLast((char *)'*', head, tail);
+            addLast(generateProcess(), head, tail);
             produced++;
             visualisation(1, pID);
             sem_wait(&sFreeElements);
@@ -90,14 +93,24 @@ void * producerFunc()
     }
 }
 
+void createBuffer()
+{
+    struct element *queue = NULL;
+    addLast(queue, headArray, tailArray);
+}
 int main(int argc, char **argv)
 {
     pthread_t consumer, producer;
     int finalSync, finalDelayProducer, finalElements, id;
+    for(int i = 0; i < MAX_PRIORITY; i++)
+    {
+        createBuffer();
+    }
     sem_init(&sSync, 0 , 1);
     sem_init(&sDelayProducer, 0 , 1);
     sem_init(&sFreeElements, 0, MAX_BUFFER_SIZE);
     pthread_create(&producer, NULL, producerFunc, NULL);
+    //Add multiple consumeCount amounts of consumers, with associated ids
     for(int i = 1; i <= consumerCount; i++)
     {
         id = i;
