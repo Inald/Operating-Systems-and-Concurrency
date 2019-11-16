@@ -92,8 +92,8 @@ int main(int argc, char **argv)
     {
         priorityArray[i] = NULL;
     }
-    head = priorityArray[0];
-    tail = priorityArray[MAX_PRIORITY - 1];
+    head = &priorityArray[0];
+    tail = &priorityArray[MAX_PRIORITY - 1];
     sem_init(&sSync, 0 , 1);
     sem_init(&sDelayProducer, 0 , 1);
     sem_init(&sFreeElements, 0, MAX_BUFFER_SIZE);
