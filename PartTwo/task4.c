@@ -38,9 +38,9 @@ void visualisation(int sender, int ID)
     printf("\n");
 }
 
-void * consumerFunc()
+void * consumerFunc(void* id)
 {
-    int count, cID = 1; 
+    int count, cID = (*(int *)id); 
     while(consumed < MAX_NUMBER_OF_JOBS)
     {
         sem_wait(&sSync);
@@ -93,14 +93,15 @@ void * producerFunc()
 int main(int argc, char **argv)
 {
     pthread_t consumer, producer;
-    int finalSync, finalDelayProducer, finalElements;
+    int finalSync, finalDelayProducer, finalElements, id;
     sem_init(&sSync, 0 , 1);
     sem_init(&sDelayProducer, 0 , 1);
     sem_init(&sFreeElements, 0, MAX_BUFFER_SIZE);
     pthread_create(&producer, NULL, producerFunc, NULL);
-    for(int i = 0; i < consumerCount; i++)
+    for(int i = 1; i <= consumerCount; i++)
     {
-        pthread_create(&consumer, NULL, consumerFunc, NULL);
+        id = i;
+        pthread_create(&consumer, NULL, consumerFunc, (void *)&id);
     }
     pthread_join(producer, NULL);
     pthread_join(consumer, NULL);
