@@ -17,15 +17,15 @@ void algorithmFCFS(struct element **head, struct element **tail)
   pid_t pid;
   int pBurst, nBurst, response = 0, turnAround = 0, sumResponse = 0, sumTurnAround = 0;
   struct process *currentProcess;
-  struct timeval *createdPtr, *recentPtr;
+  struct timeval createdPtr, recentPtr;
   //Run processes until list is empty
   while(*head)
   {
     currentProcess = ((struct process *) removeFirst(head, tail));
-    createdPtr = &(currentProcess -> oTimeCreated);
-    recentPtr = &(currentProcess -> oMostRecentTime);
+    createdPtr = (currentProcess -> oTimeCreated);
+    recentPtr = (currentProcess -> oMostRecentTime);
     //Run the process non pre-emptively
-    runNonPreemptiveJob(currentProcess, createdPtr, recentPtr);
+    runNonPreemptiveJob(currentProcess, &createdPtr, &recentPtr);
     //Set variables to process details
     pid = currentProcess -> iProcessId;
     pBurst = currentProcess ->iPreviousBurstTime;
@@ -34,7 +34,7 @@ void algorithmFCFS(struct element **head, struct element **tail)
     response = turnAround;
     sumResponse += response;
     //Turnaround is difference in time between starting and finishing the process
-    turnAround += getDifferenceInMilliSeconds(*createdPtr, *recentPtr);
+    turnAround += getDifferenceInMilliSeconds(createdPtr, recentPtr);
     sumTurnAround += turnAround;
     printf("Process ID = %d, Previous Burst Time = %d, New Burst Time = %d, Response Time = %d, Turnaround Time = %d\n", pid, pBurst, nBurst, response, turnAround);
     free(currentProcess);

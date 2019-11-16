@@ -7,77 +7,108 @@
 #include "coursework.h"
 #include "linkedlist.h"
 
-sem_t sSync, sDelayConsumer, sCount;
-int produced = 0, consumed = 0;
+//Semaphores for sync, delaying consumer and counting number of jobs
+sem_t sSync, sDelayProducer, sFreeElements;
+int produced = 0, consumed = 0, producerAwake = 0;
 //Create head and tail pointers to pointers for the linked list
 struct element *ptrH = NULL, *ptrT = NULL;
 struct element **head = &ptrH, **tail = &ptrT;
-/*displays the exact number of elements currently in buffer
-everytime an element is added to or removed from the buffer*/
-void visualisation()
+
+void visualisation(int sender, pid_t ID)
 {
-    int i, count;
-    sem_getvalue(&sCount, &count);
-    printf("Produced = %d Consumed = %d: ", produced, consumed);
-    for(int i = 0; i < count; i++)
+    int count, COUNT2;
+    struct element *elem;
+    //If 0, sender is producer else consumer
+    if(sender > 0)
     {
-        printf("*");
+        printf("Producer %d Produced = %d Consumed = %d: ", ID, produced, consumed);
+    }
+    else
+    {
+        printf("Consumer %d Produced = %d Consumed = %d: ", ID, produced, consumed);
+    }
+    //Print out element data of each element in the list
+    if(*head)
+    {
+        for(struct element *elem = *head; elem != NULL; elem = elem ->pNext)
+        {
+            printf("%c", elem -> pData);
+        }
     }
     printf("\n");
 }
 
-void * consumerFunc(){
-    int temp = 0, count = 0;
-    sem_wait(&sDelayConsumer);
-    while(consumed < MAX_NUMBER_OF_JOBS){
+void * consumerFunc()
+{
+    int count, producing; 
+    pid_t cID = 1;
+    while(consumed < MAX_NUMBER_OF_JOBS)
+    {
         sem_wait(&sSync);
-        removeFirst(head, tail);
-        consumed++;
-        //temp = consumed;
-        sem_wait(&sCount);
-        sem_getvalue(&sCount, &count);
-        //printf("count in consumer = %d\n", count);
-        visualisation();
-        if(count == 0 && consumed != MAX_NUMBER_OF_JOBS)
+        sem_getvalue(&sFreeElements, &count);
+        //printf("sFreeElements = %d\n", count);
+        if(count  < MAX_BUFFER_SIZE)
         {
-            sem_wait(&sDelayConsumer);
+            removeFirst(head, tail);
+            consumed++;
+            visualisation(0, cID);
+            sem_post(&sFreeElements);
         }
         sem_post(&sSync);
+        if(consumed < MAX_NUMBER_OF_JOBS && producerAwake == 0)
+        {
+            producerAwake = 1;
+            sem_post(&sDelayProducer);
+            sem_getvalue(&sDelayProducer, &producing);
+            //printf("sDelayProducer = %d\n", count);
+        }
     }
 }
 
 
-void * producerFunc(){
-    int count = 0;
-    while(produced < MAX_NUMBER_OF_JOBS){
+void * producerFunc()
+{
+    int count, producing;
+    pid_t pID = 1;
+    sem_wait(&sDelayProducer);
+    while(produced < MAX_NUMBER_OF_JOBS)
+    {
         sem_wait(&sSync);
-        addLast((char *)'*', head, tail);
-        produced++;
-        sem_post(&sCount);
-        sem_getvalue(&sCount, &count);
-        //printf("count in producer = %d\n", count);
-        visualisation();
-        if(count == 1)
+        sem_getvalue(&sFreeElements, &count);
+        //printf("sFreeElements = %d\n", count);
+        if(count > 0)
         {
-            sem_post(&sDelayConsumer);
+            addLast((char *)'*', head, tail);
+            produced++;
+            visualisation(1, pID);
+            sem_wait(&sFreeElements);
         }
         sem_post(&sSync);
+        if(produced < MAX_NUMBER_OF_JOBS && producerAwake == 1)
+        {
+            producerAwake = 0;
+            sem_wait(&sDelayProducer);
+            sem_getvalue(&sDelayProducer, &producing);
+            //printf("sDelayProducer = %d\n", count);
+        }
     }
 }
 
-int main(int argc, char **argv){
+int main(int argc, char **argv)
+{
     pthread_t consumer, producer;
-    int finalSync, finalDelayConsumer, finalDelayProducer, finalCount;
+    int finalSync, finalDelayProducer, finalElements;
     sem_init(&sSync, 0 , 1);
-    sem_init(&sDelayConsumer, 0 , 0);
-    sem_init(&sCount, 0, 0);
+    sem_init(&sDelayProducer, 0 , 1);
+    sem_init(&sFreeElements, 0, MAX_BUFFER_SIZE);
     pthread_create(&producer, NULL, producerFunc, NULL);
     pthread_create(&consumer, NULL, consumerFunc, NULL);
-    pthread_join(consumer, NULL);
     pthread_join(producer, NULL);
+    pthread_join(consumer, NULL);
+    //Final values of semapores
     sem_getvalue(&sSync, &finalSync);
-    sem_getvalue(&sDelayConsumer,&finalDelayConsumer);
-    sem_getvalue(&sCount, &finalCount);
-    printf("sSync = %d, sDelayConsumer = %d sCount = %d\n", finalSync, finalDelayConsumer, finalCount);
+    sem_getvalue(&sDelayProducer,&finalDelayProducer);
+    sem_getvalue(&sFreeElements, &finalElements);
+    printf("sSync = %d, sDelayProducer = %d, sFreeElements = %d\n", finalSync, finalDelayProducer, finalElements);
     return 0;
 }
