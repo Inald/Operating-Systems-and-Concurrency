@@ -7,14 +7,15 @@
 #include "coursework.h"
 #include "linkedlist.h"
 
-//Semaphores for sync, delaying consumer and counting number of jobs
+//Semaphores for sync, delaying consumer
+//Counting semaphore represents number of free elements (number of jobs not filled)
 sem_t sSync, sDelayProducer, sFreeElements;
 int produced = 0, consumed = 0, producerAwake = 0;
 //Create head and tail pointers to pointers for the linked list
 struct element *ptrH = NULL, *ptrT = NULL;
 struct element **head = &ptrH, **tail = &ptrT;
 
-void visualisation(int sender, pid_t ID)
+void visualisation(int sender, int ID)
 {
     int count, COUNT2;
     struct element *elem;
@@ -40,14 +41,13 @@ void visualisation(int sender, pid_t ID)
 
 void * consumerFunc()
 {
-    int count, producing; 
-    pid_t cID = 1;
+    int count, cID = 1; 
     while(consumed < MAX_NUMBER_OF_JOBS)
     {
         sem_wait(&sSync);
         sem_getvalue(&sFreeElements, &count);
-        //printf("sFreeElements = %d\n", count);
-        if(count  < MAX_BUFFER_SIZE)
+        //If elements exist, can remove
+        if(count < MAX_BUFFER_SIZE)
         {
             removeFirst(head, tail);
             consumed++;
@@ -55,12 +55,11 @@ void * consumerFunc()
             sem_post(&sFreeElements);
         }
         sem_post(&sSync);
+        //Wake up producer
         if(consumed < MAX_NUMBER_OF_JOBS && producerAwake == 0)
         {
             producerAwake = 1;
             sem_post(&sDelayProducer);
-            sem_getvalue(&sDelayProducer, &producing);
-            //printf("sDelayProducer = %d\n", count);
         }
     }
 }
@@ -68,14 +67,13 @@ void * consumerFunc()
 
 void * producerFunc()
 {
-    int count, producing;
-    pid_t pID = 1;
+    int count, pID = 1;
     sem_wait(&sDelayProducer);
     while(produced < MAX_NUMBER_OF_JOBS)
     {
         sem_wait(&sSync);
         sem_getvalue(&sFreeElements, &count);
-        //printf("sFreeElements = %d\n", count);
+        //If free space exists in buffer, add to buffer
         if(count > 0)
         {
             addLast((char *)'*', head, tail);
@@ -84,12 +82,11 @@ void * producerFunc()
             sem_wait(&sFreeElements);
         }
         sem_post(&sSync);
+        //Sleep producer
         if(produced < MAX_NUMBER_OF_JOBS && producerAwake == 1)
         {
             producerAwake = 0;
             sem_wait(&sDelayProducer);
-            sem_getvalue(&sDelayProducer, &producing);
-            //printf("sDelayProducer = %d\n", count);
         }
     }
 }

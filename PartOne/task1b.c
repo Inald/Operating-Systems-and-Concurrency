@@ -14,58 +14,69 @@ double calcAverage(int sum, int n)
 void algorithmRR(struct element **head, struct element **tail)
 {
   pid_t pid;
-  int responseCount = 0, pBurst, rBurst, response = 0, turnAround = 0, sumResponse = 0, sumTurnAround = 0;
+  int responseCount = 0, pBurst, rBurst, priority, response = 0, turnAround = 0, sumResponse = 0, sumTurnAround = 0;
   struct process *currentProcess;
-  struct timeval *createdPtr, *finishPtr;
+  struct timeval created, finished;
   while(*head)
   {
     //Run processes until the list is empty
     currentProcess = ((struct process *) removeFirst(head, tail));
-    //Pointers to process times
-    createdPtr = &(currentProcess -> oTimeCreated);
-    finishPtr = &(currentProcess -> oMostRecentTime);
+    //Process times
+    created = currentProcess -> oTimeCreated;
+    finished = currentProcess -> oMostRecentTime;
     //Run the process pre-emptively
-    runPreemptiveJob(currentProcess, createdPtr, finishPtr);
+    runPreemptiveJob(currentProcess, &created, &finished);
     //Set variables to process details
     pid = currentProcess -> iProcessId;
     pBurst = currentProcess ->iPreviousBurstTime;
     rBurst = currentProcess ->iRemainingBurstTime;
+    priority = currentProcess -> iPriority;
     //Response time of a process is same as current turnaround time of previous process
     response = turnAround;
     //Get difference in time between creation and most recent time.
-    turnAround += getDifferenceInMilliSeconds(*createdPtr, *finishPtr);
+    turnAround += getDifferenceInMilliSeconds(created, finished);
+    printf("Process ID = %d, Priority = %d, Previous Burst Time = %d, Remaining Burst Time = %d", pid, priority, pBurst, rBurst);
+    //Print response time if first time responding
+    if(responseCount < MAX_NUMBER_OF_JOBS)
+    {
+      responseCount++;
+      sumResponse += response;
+      printf(", Response time = %d", response);
+    }
     //If process isn't finished...
     if(rBurst > 0)
     {
-      printf("Process ID = %d, Previous Burst Time = %d, Remaining Burst Time = %d", pid, pBurst, rBurst);
-      //If first time responding to process, response time...
-      if(responseCount < NUMBER_OF_JOBS)
-      {
-        responseCount++;
-        sumResponse += response;
-        printf(", Response time = %d\n", response);
-      }
-      else{printf ("\n");}
+      printf ("\n");
       //Add process back onto list
       addLast(currentProcess, head, tail);
     }
     else
     {
       sumTurnAround += turnAround;
-      printf("Process ID = %d, Previous Burst Time = %d, Remaining Burst Time = %d, Turnaround time = %d\n", pid, pBurst, rBurst, turnAround);
+      printf(", Turnaround time = %d\n", turnAround);
+      free(currentProcess);
     }
   }
   //Calculate averages of turnaround/response
-  printf("Average response time: %f\nAverage turnaround time: %f\n", calcAverage(sumResponse, NUMBER_OF_JOBS), calcAverage(sumTurnAround, NUMBER_OF_JOBS));
+  printf("Average response time: %f\nAverage turnaround time: %f\n", calcAverage(sumResponse, MAX_NUMBER_OF_JOBS), calcAverage(sumTurnAround, MAX_NUMBER_OF_JOBS));
 }
 void createJobs(struct element **head, struct element **tail)
 {
-  int i;
-  for(i = 1; i <= NUMBER_OF_JOBS; i++)
+  int i, pID, priority, pBurst, rBurst;
+  struct process* newProcess;
+  printf("PROCESS LIST:\n");
+  for(i = 1; i <= MAX_NUMBER_OF_JOBS; i++)
   {
-    //Add process to the linked list
-    addLast(generateProcess(), head, tail);
+    newProcess = generateProcess();
+    pID = newProcess -> iProcessId;
+    priority = newProcess -> iPriority;
+    pBurst = newProcess -> iPreviousBurstTime;
+    rBurst = newProcess -> iRemainingBurstTime;
+    printf("      Process ID = %d, Priority = %d, Initial Burst Time = %d, Remaining Burst Time = %d\n", pID, priority, pBurst, rBurst);
+    //Add process to the linked list in a FCFS fashion
+    addLast(newProcess, head, tail);
   }
+  printf("END\n\n");
 }
 int main()
 {
@@ -77,8 +88,5 @@ int main()
   algorithmRR(head, tail);
   return 0; 
 }
-<<<<<<< HEAD
-=======
 
 
->>>>>>> ff5478ddba9dc4f91db03ef65d56ce33c1d7031e
