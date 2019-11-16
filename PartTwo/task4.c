@@ -8,8 +8,7 @@
 #include "linkedlist.h"
 
 //Semaphores for sync, delaying consumer
-//Counting semaphore represents number of free elements (number of jobs not filled)
-sem_t sSync, sDelayProducer;
+sem_t sSync, sSyncPrint, sDelayProducer;
 int produced = 0, consumed = 0, producerAwake = 0;
 int dAverageResponseTime = 0;
 int dAverageTurnAroundTime = 0;
@@ -20,41 +19,42 @@ int queueSizes[MAX_PRIORITY * sizeof(int)];
 
 struct process * processJob(int iConsumerId, struct process * pProcess, struct timeval oStartTime, struct timeval oEndTime)
 {
+    sem_wait(&sSyncPrint);
 	int iResponseTime;
 	int iTurnAroundTime;
-	if(pProcess->iPreviousBurstTime == pProcess->iInitialBurstTime && pProcess->iRemainingBurstTime > 0)
-	{
-		iResponseTime = getDifferenceInMilliSeconds(pProcess->oTimeCreated, oStartTime);	
-		dAverageResponseTime += iResponseTime;
-		printf("Consumer %d, Process Id = %d (%s), Priority = %d, Previous Burst Time = %d, Remaining Burst Time = %d, Response Time = %d\n", iConsumerId, pProcess->iProcessId, pProcess->iPriority < MAX_PRIORITY / 2	 ? "FCFS" : "RR",pProcess->iPriority, pProcess->iPreviousBurstTime, pProcess->iRemainingBurstTime, iResponseTime);
-		return pProcess;
-	} else if(pProcess->iPreviousBurstTime == pProcess->iInitialBurstTime && pProcess->iRemainingBurstTime == 0)
-	{
-		iResponseTime = getDifferenceInMilliSeconds(pProcess->oTimeCreated, oStartTime);	
-		dAverageResponseTime += iResponseTime;
-		iTurnAroundTime = getDifferenceInMilliSeconds(pProcess->oTimeCreated, oEndTime);
-		dAverageTurnAroundTime += iTurnAroundTime;
-		printf("Consumer %d, Process Id = %d (%s), Priority = %d, Previous Burst Time = %d, Remaining Burst Time = %d, Response Time = %d, Turnaround Time = %d\n", iConsumerId, pProcess->iProcessId, pProcess->iPriority < MAX_PRIORITY / 2 ? "FCFS" : "RR", pProcess->iPriority, pProcess->iPreviousBurstTime, pProcess->iRemainingBurstTime, iResponseTime, iTurnAroundTime);
-		free(pProcess);
-		return NULL;
-	} else if(pProcess->iPreviousBurstTime != pProcess->iInitialBurstTime && pProcess->iRemainingBurstTime > 0)
-	{
-		printf("Consumer %d, Process Id = %d (%s), Priority = %d, Previous Burst Time = %d, Remaining Burst Time = %d\n", iConsumerId, pProcess->iProcessId, pProcess->iPriority < MAX_PRIORITY / 2 ? "FCFS" : "RR", pProcess->iPriority, pProcess->iPreviousBurstTime, pProcess->iRemainingBurstTime);
-		return pProcess;
-	} else if(pProcess->iPreviousBurstTime != pProcess->iInitialBurstTime && pProcess->iRemainingBurstTime == 0)
-	{
-		iTurnAroundTime = getDifferenceInMilliSeconds(pProcess->oTimeCreated, oEndTime);
-		dAverageTurnAroundTime += iTurnAroundTime;
-		printf("Consumer %d, Process Id = %d (%s), Priority = %d, Previous Burst Time = %d, Remaining Burst Time = %d, Turnaround Time = %d\n", iConsumerId, pProcess->iProcessId, pProcess->iPriority < MAX_PRIORITY / 2 ? "FCFS" : "RR", pProcess->iPriority, pProcess->iPreviousBurstTime, pProcess->iRemainingBurstTime, iTurnAroundTime);
-		free(pProcess);
-		return NULL;
-	}
+    if(pProcess->iPreviousBurstTime == pProcess->iInitialBurstTime && pProcess->iRemainingBurstTime > 0)
+    {
+        iResponseTime = getDifferenceInMilliSeconds(pProcess->oTimeCreated, oStartTime);	
+        dAverageResponseTime += iResponseTime;
+        printf("Consumer %d, Process Id = %d (%s), Priority = %d, Previous Burst Time = %d, Remaining Burst Time = %d, Response Time = %d\n", iConsumerId, pProcess->iProcessId, pProcess->iPriority < MAX_PRIORITY / 2	 ? "FCFS" : "RR",pProcess->iPriority, pProcess->iPreviousBurstTime, pProcess->iRemainingBurstTime, iResponseTime);
+        return pProcess;
+    } else if(pProcess->iPreviousBurstTime == pProcess->iInitialBurstTime && pProcess->iRemainingBurstTime == 0)
+    {
+        iResponseTime = getDifferenceInMilliSeconds(pProcess->oTimeCreated, oStartTime);	
+        dAverageResponseTime += iResponseTime;
+        iTurnAroundTime = getDifferenceInMilliSeconds(pProcess->oTimeCreated, oEndTime);
+        dAverageTurnAroundTime += iTurnAroundTime;
+        printf("Consumer %d, Process Id = %d (%s), Priority = %d, Previous Burst Time = %d, Remaining Burst Time = %d, Response Time = %d, Turnaround Time = %d\n", iConsumerId, pProcess->iProcessId, pProcess->iPriority < MAX_PRIORITY / 2 ? "FCFS" : "RR", pProcess->iPriority, pProcess->iPreviousBurstTime, pProcess->iRemainingBurstTime, iResponseTime, iTurnAroundTime);
+        free(pProcess);
+        return NULL;
+    } else if(pProcess->iPreviousBurstTime != pProcess->iInitialBurstTime && pProcess->iRemainingBurstTime > 0)
+    {
+        printf("Consumer %d, Process Id = %d (%s), Priority = %d, Previous Burst Time = %d, Remaining Burst Time = %d\n", iConsumerId, pProcess->iProcessId, pProcess->iPriority < MAX_PRIORITY / 2 ? "FCFS" : "RR", pProcess->iPriority, pProcess->iPreviousBurstTime, pProcess->iRemainingBurstTime);
+        return pProcess;
+    } else if(pProcess->iPreviousBurstTime != pProcess->iInitialBurstTime && pProcess->iRemainingBurstTime == 0)
+    {
+        iTurnAroundTime = getDifferenceInMilliSeconds(pProcess->oTimeCreated, oEndTime);
+        dAverageTurnAroundTime += iTurnAroundTime;
+        printf("Consumer %d, Process Id = %d (%s), Priority = %d, Previous Burst Time = %d, Remaining Burst Time = %d, Turnaround Time = %d\n", iConsumerId, pProcess->iProcessId, pProcess->iPriority < MAX_PRIORITY / 2 ? "FCFS" : "RR", pProcess->iPriority, pProcess->iPreviousBurstTime, pProcess->iRemainingBurstTime, iTurnAroundTime);
+        free(pProcess);
+        return NULL;
+    }
 }
 
 void * consumerFunc(void *id)
 {
     int count, cID = *((int*)id); 
-    struct process *firstProcess;
+    struct process *firstProcess, *ranProcess;
     struct timeval start, end;
     while(consumed < NUMBER_OF_JOBS)
     {
@@ -70,16 +70,18 @@ void * consumerFunc(void *id)
                     start = firstProcess -> oTimeCreated;
                     end = firstProcess -> oMostRecentTime;
                     runJob(firstProcess, &start, &end);
-                    firstProcess = processJob(cID, firstProcess, start, end);
-                    if(firstProcess)
+                    ranProcess = processJob(cID, firstProcess, start, end);
+                    sem_post(&sSyncPrint);
+                    if(ranProcess)
                     {
-                        addLast(firstProcess, priorityHeadArray[i], priorityTailArray[i]);
+                        addLast(ranProcess, priorityHeadArray[i], priorityTailArray[i]);
                     }
                     else
                     {
                         consumed++;
                         queueSizes[i]--;
                     }
+                    //printf("consumed %d, queueSizes[%d] = %d\n", consumed, i, queueSizes[i]);
                 }    
             }
             sem_post(&sSync);
@@ -128,6 +130,7 @@ int main(int argc, char **argv)
     }
     sem_init(&sSync, 0 , 1);
     sem_init(&sDelayProducer, 0 , 1);
+    sem_init(&sSyncPrint, 0, 1);
     //Create producer and consumers
     for(int i = 0; i < NUMBER_OF_PRODUCERS; i++)
     {
