@@ -1,3 +1,11 @@
+#include <sys/types.h>
+#include <stdio.h>
+#include <unistd.h>
+#include <stdlib.h>
+#include <semaphore.h>
+#include <pthread.h>
+#include "coursework.h"
+#include "linkedlist.h"
 /*
  * Prints output on the screen depending on the type of process (FCFS or RR) and calculates the turn-around/response times.
  * The variables dAverageResponseTime and dAverageTurnAroundTime should be declared.
@@ -11,6 +19,8 @@ struct process * processJob(int iConsumerId, struct process * pProcess, struct t
 {
 	int iResponseTime;
 	int iTurnAroundTime;
+	int dAverageResponseTime;
+	int dAverageTurnAroundTime;
 	if(pProcess->iPreviousBurstTime == pProcess->iInitialBurstTime && pProcess->iRemainingBurstTime > 0)
 	{
 		iResponseTime = getDifferenceInMilliSeconds(pProcess->oTimeCreated, oStartTime);	

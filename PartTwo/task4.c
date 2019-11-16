@@ -9,26 +9,46 @@
 
 //Semaphores for sync, delaying consumer
 //Counting semaphore represents number of free elements (number of jobs not filled)
-sem_t sSync, sDelayProducer, sFreeElements;
+sem_t sSync, sDelayProducer;
 int produced = 0, consumed = 0, producerAwake = 0;
+int dAverageResponseTime = 0;
+int dAverageTurnAroundTime = 0;
 //Create head and tail pointers to pointers for the linked list
-struct element **priorityArray[MAX_PRIORITY];
-struct element **head, **tail;
+struct element **priorityHeadArray[MAX_PRIORITY * sizeof(struct element **)];
+struct element **priorityTailArray[MAX_PRIORITY * sizeof(struct element **)];
+sem_t queueSizes[MAX_PRIORITY * sizeof(sem_t)];
 
-
-void visualisation(int sender, int ID)
+struct process * processJob(int iConsumerId, struct process * pProcess, struct timeval oStartTime, struct timeval oEndTime)
 {
-    struct element *elem;
-    //If 0, sender is producer else consumer
-    if(sender > 0)
-    {
-        printf("Producer %d Produced = %d Consumed = %d: ", ID, produced, consumed);
-    }
-    else
-    {
-        printf("Consumer %d Produced = %d Consumed = %d: ", ID, produced, consumed);
-    }
-    printf("\n");
+	int iResponseTime;
+	int iTurnAroundTime;
+	if(pProcess->iPreviousBurstTime == pProcess->iInitialBurstTime && pProcess->iRemainingBurstTime > 0)
+	{
+		iResponseTime = getDifferenceInMilliSeconds(pProcess->oTimeCreated, oStartTime);	
+		dAverageResponseTime += iResponseTime;
+		printf("Consumer %d, Process Id = %d (%s), Priority = %d, Previous Burst Time = %d, Remaining Burst Time = %d, Response Time = %d\n", iConsumerId, pProcess->iProcessId, pProcess->iPriority < MAX_PRIORITY / 2	 ? "FCFS" : "RR",pProcess->iPriority, pProcess->iPreviousBurstTime, pProcess->iRemainingBurstTime, iResponseTime);
+		return pProcess;
+	} else if(pProcess->iPreviousBurstTime == pProcess->iInitialBurstTime && pProcess->iRemainingBurstTime == 0)
+	{
+		iResponseTime = getDifferenceInMilliSeconds(pProcess->oTimeCreated, oStartTime);	
+		dAverageResponseTime += iResponseTime;
+		iTurnAroundTime = getDifferenceInMilliSeconds(pProcess->oTimeCreated, oEndTime);
+		dAverageTurnAroundTime += iTurnAroundTime;
+		printf("Consumer %d, Process Id = %d (%s), Priority = %d, Previous Burst Time = %d, Remaining Burst Time = %d, Response Time = %d, Turnaround Time = %d\n", iConsumerId, pProcess->iProcessId, pProcess->iPriority < MAX_PRIORITY / 2 ? "FCFS" : "RR", pProcess->iPriority, pProcess->iPreviousBurstTime, pProcess->iRemainingBurstTime, iResponseTime, iTurnAroundTime);
+		free(pProcess);
+		return NULL;
+	} else if(pProcess->iPreviousBurstTime != pProcess->iInitialBurstTime && pProcess->iRemainingBurstTime > 0)
+	{
+		printf("Consumer %d, Process Id = %d (%s), Priority = %d, Previous Burst Time = %d, Remaining Burst Time = %d\n", iConsumerId, pProcess->iProcessId, pProcess->iPriority < MAX_PRIORITY / 2 ? "FCFS" : "RR", pProcess->iPriority, pProcess->iPreviousBurstTime, pProcess->iRemainingBurstTime);
+		return pProcess;
+	} else if(pProcess->iPreviousBurstTime != pProcess->iInitialBurstTime && pProcess->iRemainingBurstTime == 0)
+	{
+		iTurnAroundTime = getDifferenceInMilliSeconds(pProcess->oTimeCreated, oEndTime);
+		dAverageTurnAroundTime += iTurnAroundTime;
+		printf("Consumer %d, Process Id = %d (%s), Priority = %d, Previous Burst Time = %d, Remaining Burst Time = %d, Turnaround Time = %d\n", iConsumerId, pProcess->iProcessId, pProcess->iPriority < MAX_PRIORITY / 2 ? "FCFS" : "RR", pProcess->iPriority, pProcess->iPreviousBurstTime, pProcess->iRemainingBurstTime, iTurnAroundTime);
+		free(pProcess);
+		return NULL;
+	}
 }
 
 void * consumerFunc(void *id)
@@ -39,30 +59,31 @@ void * consumerFunc(void *id)
     while(consumed < NUMBER_OF_JOBS)
     {
         sem_wait(&sSync);
-        sem_getvalue(&sFreeElements, &count);
-        printf("Test 1\n");
         //If elements exist, can remove
-        if(count < MAX_BUFFER_SIZE)
+        for(int i = 0; i < MAX_PRIORITY; i++)
         {
-            for(int i = 0; i < MAX_PRIORITY; i++)
+            if(queueSizes[i] > 0)
             {
-                printf("Test 2\n");
-                firstProcess = ((struct process *)*priorityArray[i]);
-                printf("Test 3\n");
+                firstProcess = (struct process *)removeFirst(priorityHeadArray[i], priorityTailArray[i]);
                 start = firstProcess -> oTimeCreated;
                 end = firstProcess -> oMostRecentTime;
-                printf("Test 6\n");
+                runJob(firstProcess, &start, &end);
+                queueSizes[i]--;
+                //Wake up producer
+                if(consumed < NUMBER_OF_JOBS && queueSizes[i] <= 0)
+                {
+                    sem_post(&sDelayProducer);
+                }
                 consumed++;
+                firstProcess = processJob(cID, firstProcess, start, end);
+                if(firstProcess)
+                {
+                    addLast(firstProcess, priorityHeadArray[i], priorityTailArray[i]);
+                    queueSizes[i]++;
+                }
             }
-            visualisation(0, cID);
-            sem_post(&sFreeElements);
-        }
-        sem_post(&sSync);
-        //Wake up producer
-        if(consumed < NUMBER_OF_JOBS && producerAwake == 0)
-        {
-            producerAwake = 1;
-            sem_post(&sDelayProducer);
+            sem_post(&sSync);
+            
         }
     }
 }
@@ -76,49 +97,38 @@ void * producerFunc(void *id)
     while(produced < NUMBER_OF_JOBS)
     {
         sem_wait(&sSync);
-        sem_getvalue(&sFreeElements, &count);
-        printf("Test 4\n");
-        //If free space exists in buffer, add to buffer
-        if(count > 0)
+        newProcess = generateProcess();
+        for(int i = 0; i < MAX_PRIORITY; i++)
         {
-            newProcess = generateProcess();
-            printf("Test 5\n");
-            for(int i = 0; i < MAX_PRIORITY; i++)
+            if(i == newProcess -> iPriority && produced < NUMBER_OF_JOBS)
             {
-                if(newProcess -> iPriority == i)
+                if(queueSizes[i] > MAX_BUFFER_SIZE)
                 {
-                    printf("Test 6\n");
-                    addLast(newProcess, priorityArray[i], priorityArray[i]);
-                    printf("Test 7\n");
-                    produced++;
+                    sem_wait(&sDelayProducer);
                 }
+                addLast(newProcess, priorityHeadArray[newProcess->iPriority], priorityTailArray[newProcess->iPriority]);
+                printf("Producer 1, Process ID = %d, Priority = %d, Previous Burst Time = %d\n", newProcess->iProcessId, newProcess->iPriority, newProcess->iPreviousBurstTime);
+                queueSizes[newProcess->iPriority]++;
+                produced++;
             }
-            visualisation(1, pID);
-            sem_wait(&sFreeElements);
-        }
-        sem_post(&sSync);
-        //Sleep producer
-        if(produced < NUMBER_OF_JOBS && producerAwake == 1)
-        {
-            producerAwake = 0;
-            sem_wait(&sDelayProducer);
+            sem_post(&sSync);
         }
     }
 }
-
 int main(int argc, char **argv)
 {
     pthread_t consumer, producer;
-    int finalSync, finalDelayProducer, finalElements, id;
+    int finalSync, finalDelayProducer;
     for(int i = 0; i < MAX_PRIORITY; i++)
     {
-        priorityArray[i] = malloc(sizeof(struct process *) * MAX_BUFFER_SIZE);
+        priorityHeadArray[i] = priorityTailArray[i] = malloc(sizeof(struct element **));
     }
-    head = priorityArray[0];
-    tail = priorityArray[MAX_PRIORITY - 1];
     sem_init(&sSync, 0 , 1);
     sem_init(&sDelayProducer, 0 , 1);
-    sem_init(&sFreeElements, 0, MAX_BUFFER_SIZE);
+    for(int i = 0; i < MAX_PRIORITY; i++)
+    {
+        sem_init(&queueSizes[i], 0, MAX_BUFFER_SIZE);
+    }
     //Create producer and consumers
     for(int i = 0; i < NUMBER_OF_PRODUCERS; i++)
     {
@@ -133,7 +143,6 @@ int main(int argc, char **argv)
     //Final values of semapores
     sem_getvalue(&sSync, &finalSync);
     sem_getvalue(&sDelayProducer,&finalDelayProducer);
-    sem_getvalue(&sFreeElements, &finalElements);
-    printf("sSync = %d, sDelayProducer = %d, sFreeElements = %d\n", finalSync, finalDelayProducer, finalElements);
+    printf("sSync = %d, sDelayProducer = %dn", finalSync, finalDelayProducer);
     return 0;
 }
