@@ -14,9 +14,9 @@ int produced = 0, consumed = 0, producerAwake = 0;
 int dAverageResponseTime = 0;
 int dAverageTurnAroundTime = 0;
 //Represent MAX_PRIORITY amount of buffers in a array of linked lists
-struct element **headArray[MAX_PRIORITY * sizeof(struct element **)];
-struct element **tailArray[MAX_PRIORITY * sizeof(struct element **)];
-int queueSizes[MAX_PRIORITY * sizeof(int)];
+struct element **headArray[MAX_PRIORITY];
+struct element **tailArray[MAX_PRIORITY];
+int queueSizes[MAX_PRIORITY];
 
 double calcAverage(int sum, int n)
 {
@@ -25,7 +25,6 @@ double calcAverage(int sum, int n)
 
 struct process * processJob(int iConsumerId, struct process * pProcess, struct timeval oStartTime, struct timeval oEndTime)
 {
-    sem_wait(&sSyncPrint);
 	int iResponseTime;
 	int iTurnAroundTime;
     if(pProcess->iPreviousBurstTime == pProcess->iInitialBurstTime && pProcess->iRemainingBurstTime > 0)
@@ -64,11 +63,41 @@ void * consumerFunc(void *id)
     struct timeval start, end;
     while(consumed < NUMBER_OF_JOBS)
     {
-        sem_wait(&sFull);
         sem_wait(&sSync);
+<<<<<<< HEAD
         
         sem_post(&sSync);
         sem_post(&sEmpty);
+=======
+        if(*headArray[currentPriority])
+        {
+            firstProcess = removeFirst(headArray[currentPriority], tailArray[currentPriority]);
+            start = firstProcess->oTimeCreated;
+            end = firstProcess->oMostRecentTime;
+            runJob(firstProcess, &start, &end);
+            firstProcess = processJob(cID, firstProcess, start, end);
+            if(firstProcess)
+            {
+                addLast(firstProcess, headArray[currentPriority], tailArray[currentPriority]);
+            }
+            else
+            {
+                consumed++;
+                queueSizes[currentPriority]--;
+                if(queueSizes[currentPriority] == 0)
+                {
+                    sem_wait(&sEmpty);
+                }
+            }
+            currentPriority++;
+            if(currentPriority >= MAX_PRIORITY)
+            {
+                currentPriority = 0;
+            }
+        }
+        sem_post(&sSync);    
+        sem_post(&sFull);
+>>>>>>> 2df5d6aefa8998e003d2f0e6f59a8f8a1d672c3f
     }
 }
 
@@ -80,15 +109,22 @@ void * producerFunc(void *id)
     struct process *newProcess;
     while(produced < NUMBER_OF_JOBS)
     {
-        sem_wait(&sEmpty);
         sem_wait(&sSync);
         newProcess = generatedProcess();
         priority = newProcess -> iPriority;
+<<<<<<< HEAD
         addLast(newProcess, headArray[priority], tailArray[priority]);
+=======
+        if(queueSizes[priority] >= MAX_BUFFER_SIZE)
+        {
+            sem_wait(&sFull);
+        }
+        addLast(newProcess, headArray[priority], tailArray[priority]);
+        queueSizes[priority]++;
+        produced++;
+>>>>>>> 2df5d6aefa8998e003d2f0e6f59a8f8a1d672c3f
         sem_post(&sSync);
-        sem_post(&sFull);
-
-
+        sem_post(&sEmpty);
     }
 }
 int main(int argc, char **argv)
@@ -97,10 +133,10 @@ int main(int argc, char **argv)
     int finalSync, finalFull, finalEmpty;
     for(int i = 0; i < MAX_PRIORITY; i++)
     {
-        headArray[i] = tailArray[i] = malloc(sizeof(struct element **));
+        headArray[i] = tailArray[i] = malloc(sizeof(struct element));
+        queueSizes[i] = 0;
     }
     sem_init(&sSync, 0 , 1);
-    sem_init(&sDelayProducer, 0 , 1);
     sem_init(&sSyncPrint, 0, 1);
     sem_init(&sFull, 0, 0);
     sem_init(&sEmpty, 0, MAX_PRIORITY);
@@ -120,10 +156,13 @@ int main(int argc, char **argv)
     sem_getvalue(&sFull, &finalFull);
     sem_getvalue(&sEmpty, &finalEmpty);
     printf("sSync = %d, sFull = %d, sEmpty = %d\n", finalSync, finalFull, finalEmpty);
+<<<<<<< HEAD
     for(int i = 0; i < MAX_PRIORITY; i++){
         free(headArray[i]);
         free(tailArray[i]);
     
     }
+=======
+>>>>>>> 2df5d6aefa8998e003d2f0e6f59a8f8a1d672c3f
     return 0;
 }
