@@ -79,10 +79,6 @@ void * consumerFunc(void *id)
             {
                 consumed++;
                 queueSizes[currentPriority]--;
-                if(queueSizes[currentPriority] == 0)
-                {
-                    sem_wait(&sEmpty);
-                }
             }
             currentPriority++;
             if(currentPriority >= MAX_PRIORITY)
@@ -91,7 +87,6 @@ void * consumerFunc(void *id)
             }
         }
         sem_post(&sSync);    
-        sem_post(&sFull);
     }
 }
 
@@ -105,15 +100,13 @@ void * producerFunc(void *id)
         sem_wait(&sSync);
         newProcess = generateProcess();
         priority = newProcess -> iPriority;
-        if(queueSizes[priority] >= MAX_BUFFER_SIZE)
+        if(*headArray[priority] && queueSizes[priority] < MAX_BUFFER_SIZE)
         {
-            sem_wait(&sFull);
+            addLast(newProcess, headArray[priority], tailArray[priority]);
+            queueSizes[priority]++;
+            produced++;
         }
-        addLast(newProcess, headArray[priority], tailArray[priority]);
-        queueSizes[priority]++;
-        produced++;
         sem_post(&sSync);
-        sem_post(&sEmpty);
     }
 }
 int main(int argc, char **argv)
