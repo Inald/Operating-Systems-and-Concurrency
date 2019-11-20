@@ -75,7 +75,7 @@ struct process * processJob(int iConsumerId, struct process * pProcess, struct t
     {
         iTurnAroundTime = getDifferenceInMilliSeconds(pProcess->oTimeCreated, oEndTime);
         dAverageTurnAroundTime += iTurnAroundTime;
-        printf("Consumer %d, Process Id = %d (%s), Priority = %d, Previous Burst Time = %d, Remaining Burst Time = %d, Turnaround Time = %d\n", iConsumerId, pProcess->iProcessId, pProcess->iPriority < MAX_PRIORITY / 2 ? "FCFS" : "RR", pProcess->iPriority, pProcess->iPreviousBurstTime, pProcess->iRemainingBurstTime, iTurnAroundTime);
+        printf("Consumer %d, Process Id = %d (%s), Priority = %d, Previous Burst Time = %d, Remaining Burst Time = %d\n", iConsumerId, pProcess->iProcessId, pProcess->iPriority < MAX_PRIORITY / 2 ? "FCFS" : "RR", pProcess->iPriority, pProcess->iPreviousBurstTime, pProcess->iRemainingBurstTime);
         free(pProcess);
         return NULL;
     }
@@ -98,29 +98,29 @@ void * consumerFunc(void *id)
             start = firstProcess -> oTimeCreated;
             end = firstProcess -> oMostRecentTime;
             runJob(firstProcess, &start, &end);
+            sem_wait(&sSync);
             firstProcess = processJob(cID, firstProcess, start, end);
             if(firstProcess)
             {
-                sem_wait(&sSync);
                 addLast(firstProcess, headArray[currentPriority], tailArray[currentPriority]);
-                sem_post(&sSync);
             }
             else
             {
                 consumed++;
                 queueSizes[currentPriority]--;
             }
-            
+            sem_post(&sSync);
+ 
         }
         currentPriority++;
         if(currentPriority >= MAX_PRIORITY){currentPriority = 0;}
     }
     
 }
-void * producerFunc()
+void * producerFunc(void *id)
 {
     struct process *newProcess;
-    int priority;
+    int priority, pID = (*(int *)id);
     while(produced < NUMBER_OF_JOBS)
     {
         newProcess = generateProcess();
@@ -130,6 +130,7 @@ void * producerFunc()
         addLast(newProcess, headArray[priority], tailArray[priority]);
         sem_post(&sSync);
         sem_post(&sFull);
+        printf("Producer %d, Process Id = %d, Priority = %d (%s), Previous Burst Time = %d, Remaining Burst Time = %d, Turnaround Time = %d\n", pID, newProcess->iProcessId, priority, newProcess->iPriority < MAX_PRIORITY / 2 ? "FCFS" : "RR", newProcess->iPriority, newProcess->iPreviousBurstTime, newProcess->iRemainingBurstTime);
         produced++;
         queueSizes[priority]++;
     }
@@ -137,7 +138,7 @@ void * producerFunc()
 int main(int argc, char **argv)
 { 
     pthread_t consumer, producer;
-    int finalSync, finalEmpty, finalFull;
+    int finalSync, finalEmpty, finalFull, id;
     sem_init(&sSync, 0 , 1);
     sem_init(&sEmpty, 0, MAX_BUFFER_SIZE);
     sem_init(&sFull, 0, 0);
@@ -147,10 +148,15 @@ int main(int argc, char **argv)
         queueSizes[i] = 0;
     }
     //Create producer and consumers
-    pthread_create(&producer, NULL, producerFunc, NULL);
+    for(int i = 0; i < NUMBER_OF_PRODUCERS; i++)
+    {
+        id = i;
+        pthread_create(&producer, NULL, producerFunc, (void *)&id);
+    }
     for(int i = 0; i < NUMBER_OF_CONSUMERS; i++)
     {
-        pthread_create(&consumer, NULL, consumerFunc, (void *)&i);
+        id = i;
+        pthread_create(&consumer, NULL, consumerFunc, (void *)&id);
     }
     pthread_join(consumer, NULL);
     pthread_join(producer, NULL);
