@@ -92,7 +92,6 @@ void * consumerFunc(void *id)
         sem_wait(&sSync);
         firstProcess = removeFirst(headArray[currentPriority], tailArray[currentPriority]);
         sem_post(&sSync);
-        sem_post(&sEmpty);
         if(firstProcess)
         {
             start = firstProcess -> oTimeCreated;
@@ -108,6 +107,7 @@ void * consumerFunc(void *id)
             {
                 consumed++;
                 queueSizes[currentPriority]--;
+                sem_post(&sEmpty);
             }
             sem_post(&sSync);
  
