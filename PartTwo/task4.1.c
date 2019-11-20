@@ -59,8 +59,12 @@ struct process * processJob(int iConsumerId, struct process * pProcess, struct t
      while(consumed < MAX_NUMBER_OF_JOBS)
      {
         sem_getvalue(&sFull, &count);
-        if(count <= 3 && consumed >= MAX_NUMBER_OF_JOBS){
-            break;
+        // if(consumed  MAX_NUMBER_OF_JOBS){
+            
+        //     break;
+        // }
+        if(count <= 3 && consumed >= MAX_NUMBER_OF_JOBS - 3){
+            sem_post(&sFull);
         }
         sem_wait(&sFull);
         sem_wait(&sSync);
@@ -85,7 +89,6 @@ struct process * processJob(int iConsumerId, struct process * pProcess, struct t
         }
         //printf("consumer = %d\n", consumed);
         sem_post(&sSync);
-        
         
      }
      printf("Consumer finished = %d\n", cID);
@@ -113,7 +116,7 @@ void * producerFunc()
 
 int main(int argc, char **argv)
 {
-    pthread_t consumer, producer;
+    pthread_t consumer1, consumer2, consumer3, producer;
     int finalSync, finalEmpty, finalFull, id = 0;
     sem_init(&sSync, 0 , 1);
     sem_init(&sEmpty, 0 , MAX_BUFFER_SIZE);
@@ -121,13 +124,18 @@ int main(int argc, char **argv)
 
     pthread_create(&producer, NULL, producerFunc, &id);
 
-    for(int i = 0; i < NUMBER_OF_CONSUMERS; i++){
-         pthread_create(&consumer, NULL, consumerFunc, &id);
+         pthread_create(&consumer1, NULL, consumerFunc, &id);
          id++;
-    }
+         pthread_create(&consumer2, NULL, consumerFunc, &id);
+         id++;
+         pthread_create(&consumer3, NULL, consumerFunc, &id);
+         id++;
+
 
     pthread_join(producer, NULL);
-    pthread_join(consumer, NULL);
+    pthread_join(consumer1, NULL);
+    pthread_join(consumer2, NULL);
+    pthread_join(consumer3, NULL);
     //Final values of semapores
     sem_getvalue(&sSync, &finalSync);
     sem_getvalue(&sEmpty, &finalEmpty);
