@@ -54,7 +54,7 @@ struct process * processJob(int iConsumerId, struct process * pProcess, struct t
  void * consumerFunc(void *id)
  {
      int count, cID = (*(int *) id), currentPriority = 0;
-     struct process *firstProcess; 
+     struct process *firstProcess, *processRun; 
      struct timeval start, end;
      while(consumed < MAX_NUMBER_OF_JOBS)
      {
@@ -75,9 +75,15 @@ struct process * processJob(int iConsumerId, struct process * pProcess, struct t
         start = firstProcess -> oTimeCreated;
         end = firstProcess -> oMostRecentTime; 
         runJob(firstProcess, &start, &end);
-        processJob(cID, firstProcess, start, end);
-        consumed++;
-        // printf("consumer = %d\n", consumed);
+        processRun = processJob(cID, firstProcess, start, end);
+        if(processRun){
+            addLast(processRun, &headArray[currentPriority], &tailArray[currentPriority]);
+            sem_post(&sFull);
+        }else{
+            consumed++;
+            sem_post(&sEmpty);
+        }
+        //printf("consumer = %d\n", consumed);
         sem_post(&sSync);
         sem_post(&sEmpty);
         
@@ -98,7 +104,7 @@ void * producerFunc()
         newProcess = generateProcess();
         addLast(newProcess, &headArray[newProcess -> iPriority], &tailArray[newProcess -> iPriority]);
         produced++;
-        // printf("produced = %d\n", produced);
+        //printf("produced = %d\n", produced);
         sem_post(&sSync);
         sem_post(&sFull);
         
