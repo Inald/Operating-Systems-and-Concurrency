@@ -128,7 +128,7 @@ void * producerFunc()
     int priority;
     while(produced < NUMBER_OF_JOBS)
     {
-        if(consumed < NUMBER_OF_JOBS){sem_wait(&sEmpty);}
+        sem_wait(&sEmpty);
         if(sumSizes() < MAX_BUFFER_SIZE && produced < NUMBER_OF_JOBS)
         {
             newProcess = generateProcess();
@@ -143,7 +143,7 @@ void * producerFunc()
                 printf("Producer %d, Process Id = %d, Priority = %d (%s), Previous Burst Time = %d, Remaining Burst Time = %d\n", 1, newProcess->iProcessId, priority, newProcess->iPriority < MAX_PRIORITY / 2 ? "FCFS" : "RR", newProcess->iPreviousBurstTime, newProcess->iRemainingBurstTime);
             }
         }
-        if(consumed < NUMBER_OF_JOBS){sem_post(&sFull);}
+        sem_post(&sFull);
     }
 }
 int main(int argc, char **argv)
