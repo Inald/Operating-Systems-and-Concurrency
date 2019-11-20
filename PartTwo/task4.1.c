@@ -85,7 +85,7 @@ struct process * processJob(int iConsumerId, struct process * pProcess, struct t
         }
         //printf("consumer = %d\n", consumed);
         sem_post(&sSync);
-        sem_post(&sEmpty);
+        
         
      }
      printf("Consumer finished = %d\n", cID);
