@@ -15,6 +15,7 @@ int produced = 0, consumed = 0, dAverageResponseTime, dAverageTurnAroundTime;
 // struct element *ptrH = NULL, *ptrT = NULL;
 // struct element **head = &ptrH, **tail = &ptrT;
 struct element *headArray[MAX_PRIORITY], *tailArray[MAX_PRIORITY];
+int bufferCount = 0;
 double calcAverage(int sum, int n)
 {
   return ((double)sum/(double)n);
@@ -67,6 +68,7 @@ struct process * processJob(int iConsumerId, struct process * pProcess, struct t
      struct timeval start, end;
      while(consumed < MAX_NUMBER_OF_JOBS)
      {
+        printSems();
         sem_wait(&sFull);
         sem_wait(&sSync);
         for(int i = 0; i < MAX_PRIORITY; i++){
@@ -90,7 +92,7 @@ struct process * processJob(int iConsumerId, struct process * pProcess, struct t
             consumed++;
             sem_post(&sEmpty);
         }
-        sem_post(&sSync);    
+        sem_post(&sSync);  
      }
      printf("Consumer finished = %d\n", cID);
 }
@@ -103,6 +105,7 @@ void * producerFunc()
     
     while(produced < MAX_NUMBER_OF_JOBS)
     {
+        printSems();
         sem_wait(&sEmpty);
         sem_wait(&sSync);
         newProcess = generateProcess();
@@ -110,25 +113,24 @@ void * producerFunc()
         produced++;
         sem_post(&sSync);
         sem_post(&sFull);
-        
     }
 }
 
 int main(int argc, char **argv)
 {
-    pthread_t consumer[NUMBER_OF_CONSUMERS], producer;
+    pthread_t consumer1, consumer2, consumer3, producer;
     int finalSync, finalEmpty, finalFull, id = 0;
     sem_init(&sSync, 0 , 1);
     sem_init(&sEmpty, 0 , MAX_BUFFER_SIZE);
     sem_init(&sFull, 0, 0);
     pthread_create(&producer, NULL, producerFunc, NULL);
-
-    for(int i = 0; i < NUMBER_OF_CONSUMERS; i++){
-        id++;
-        pthread_create(&consumer[i], NULL, consumerFunc, &id);
-        pthread_join(consumer[i], NULL);
-    }
+    pthread_create(&consumer1, NULL, producerFunc, (void *)1);
+    pthread_create(&consumer2, NULL, producerFunc, (void *)2);
+    pthread_create(&consumer3, NULL, producerFunc, (void *)3);
     pthread_join(producer, NULL);
+    pthread_join(consumer1, NULL);
+    pthread_join(consumer2, NULL);
+    pthread_join(consumer3, NULL);
     //Final values of semapores
     sem_getvalue(&sSync, &finalSync);
     sem_getvalue(&sEmpty, &finalEmpty);
