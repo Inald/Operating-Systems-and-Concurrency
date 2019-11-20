@@ -91,24 +91,29 @@ void * consumerFunc(void *id)
     {
         sem_wait(&sFull);
         sem_wait(&sSync);
-        firstProcess = removeFirst(headArray[currentPriority], tailArray[currentPriority]);
-        sem_post(&sSync);
-        if(firstProcess)
-        {
-            runJob(firstProcess, &start, &end);
+        if(headArray[currentPriority] && tailArray[currentPriority]){
+            firstProcess = removeFirst(headArray[currentPriority], tailArray[currentPriority]);
             sem_post(&sSync);
-            sem_wait(&sSync);
-            runProcess = processJob(cID, firstProcess, start, end);
-            if(runProcess)
+            if(firstProcess)
             {
-                addLast(runProcess, headArray[currentPriority], tailArray[currentPriority]);
+                printf("Test 3\n");
+                runJob(firstProcess, &start, &end);
+                printf("Test 4\n");
+                sem_post(&sSync);
+                sem_wait(&sSync);
+                runProcess = processJob(cID, firstProcess, start, end);
+                if(runProcess)
+                {
+                    addLast(runProcess, headArray[currentPriority], tailArray[currentPriority]);
+                }
+                else
+                {
+                    consumed++;
+                    queueSizes[currentPriority]--;
+                    printf("consumed = %d\n",consumed);
+                }
+                sem_post(&sSync);
             }
-            else
-            {
-                consumed++;
-                queueSizes[currentPriority]--;
-            }
-            sem_post(&sSync);
         }
         currentPriority++;
         if(currentPriority >= MAX_PRIORITY)
