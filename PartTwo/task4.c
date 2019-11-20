@@ -9,7 +9,7 @@
 
 //Semaphores for sync, delaying consumer
 //Full and empty counting semaphores
-sem_t sSync, sEmpty, sFull;
+sem_t sSync, sPrintSync, sEmpty, sFull;
 int produced = 0, consumed = 0;
 int dAverageResponseTime = 0;
 int dAverageTurnAroundTime = 0;
@@ -52,6 +52,7 @@ struct process * processJob(int iConsumerId, struct process * pProcess, struct t
 {
 	int iResponseTime;
 	int iTurnAroundTime;
+    sem_wait(&sPrintSync);
     if(pProcess->iPreviousBurstTime == pProcess->iInitialBurstTime && pProcess->iRemainingBurstTime > 0)
     {
         iResponseTime = getDifferenceInMilliSeconds(pProcess->oTimeCreated, oStartTime);	
@@ -97,23 +98,25 @@ void * consumerFunc(void *id)
             start = firstProcess -> oTimeCreated;
             end = firstProcess -> oMostRecentTime;
             runJob(firstProcess, &start, &end);
-            sem_wait(&sSync);
             firstProcess = processJob(cID, firstProcess, start, end);
+            sem_post(&sPrintSync);
             if(firstProcess)
             {
+                sem_wait(&sSync);
                 addLast(firstProcess, headArray[currentPriority], tailArray[currentPriority]);
+                sem_post(&sSync);
             }
             else
             {
                 consumed++;
                 queueSizes[currentPriority]--;
-                sem_post(&sEmpty);
             }
-            sem_post(&sSync);
  
         }
         currentPriority++;
         if(currentPriority >= MAX_PRIORITY){currentPriority = 0;}
+        sem_post(&sEmpty);
+
     }
     
 }
@@ -123,25 +126,32 @@ void * producerFunc(void *id)
     int priority, pID = (*(int *)id);
     while(produced < NUMBER_OF_JOBS)
     {
-        newProcess = generateProcess();
-        priority = newProcess -> iPriority;
         sem_wait(&sEmpty);
-        sem_wait(&sSync);
-        addLast(newProcess, headArray[priority], tailArray[priority]);
-        sem_post(&sSync);
-        sem_post(&sFull);
-        printf("Producer %d, Process Id = %d, Priority = %d (%s), Previous Burst Time = %d, Remaining Burst Time = %d, Turnaround Time = %d\n", pID, newProcess->iProcessId, priority, newProcess->iPriority < MAX_PRIORITY / 2 ? "FCFS" : "RR", newProcess->iPriority, newProcess->iPreviousBurstTime, newProcess->iRemainingBurstTime);
-        produced++;
-        queueSizes[priority]++;
+        if(sumSizes() < MAX_BUFFER_SIZE)
+        {
+            newProcess = generateProcess();
+            priority = newProcess -> iPriority;
+            if(queueSizes[priority] < MAX_BUFFER_SIZE)
+            {
+                sem_wait(&sSync);
+                addLast(newProcess, headArray[priority], tailArray[priority]);
+                sem_post(&sSync);
+                queueSizes[priority]++;
+                produced++;
+                printf("Producer %d, Process Id = %d, Priority = %d (%s), Previous Burst Time = %d, Remaining Burst Time = %d\n", pID, newProcess->iProcessId, priority, newProcess->iPriority < MAX_PRIORITY / 2 ? "FCFS" : "RR", newProcess->iPreviousBurstTime, newProcess->iRemainingBurstTime);
+            }
+        }
+        if(produced < NUMBER_OF_JOBS){sem_post(&sFull);}
     }
 }
 int main(int argc, char **argv)
 { 
     pthread_t consumer, producer;
-    int finalSync, finalEmpty, finalFull, id;
+    int finalSync, finalEmpty, finalFull, finalPrint, id;
     sem_init(&sSync, 0 , 1);
     sem_init(&sEmpty, 0, MAX_BUFFER_SIZE);
     sem_init(&sFull, 0, 0);
+    sem_init(&sPrintSync, 0, 1);
     for(int i = 0; i < MAX_PRIORITY; i++)
     {
         headArray[i] = tailArray[i] = calloc(1, sizeof(struct element *));
@@ -164,6 +174,7 @@ int main(int argc, char **argv)
     sem_getvalue(&sSync, &finalSync);
     sem_getvalue(&sFull, &finalFull);
     sem_getvalue(&sEmpty, &finalEmpty);
-    printf("sSync = %d, sFull = %d, sEmpty = %d\n", finalSync, finalFull, finalEmpty);
+    sem_getvalue(&sPrintSync, &finalPrint);
+    printf("sSync = %d, sPrintSync = %d, sFull = %d, sEmpty = %d\n", finalSync, finalPrint, finalFull, finalEmpty);
     return 0;
 }
