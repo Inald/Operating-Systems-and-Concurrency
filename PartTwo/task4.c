@@ -52,7 +52,6 @@ struct process * processJob(int iConsumerId, struct process * pProcess, struct t
 {
 	int iResponseTime;
 	int iTurnAroundTime;
-    sem_wait(&sPrintSync);
     if(pProcess->iPreviousBurstTime == pProcess->iInitialBurstTime && pProcess->iRemainingBurstTime > 0)
     {
         iResponseTime = getDifferenceInMilliSeconds(pProcess->oTimeCreated, oStartTime);	
@@ -93,29 +92,27 @@ void * consumerFunc(void *id)
         sem_wait(&sSync);
         firstProcess = removeFirst(headArray[currentPriority], tailArray[currentPriority]);
         sem_post(&sSync);
+        sem_post(&sEmpty);
         if(firstProcess)
         {
             start = firstProcess -> oTimeCreated;
             end = firstProcess -> oMostRecentTime;
             runJob(firstProcess, &start, &end);
+            sem_wait(&sSync);
             firstProcess = processJob(cID, firstProcess, start, end);
-            sem_post(&sPrintSync);
             if(firstProcess)
             {
-                sem_wait(&sSync);
                 addLast(firstProcess, headArray[currentPriority], tailArray[currentPriority]);
-                sem_post(&sSync);
             }
             else
             {
                 consumed++;
                 queueSizes[currentPriority]--;
             }
- 
+            sem_post(&sSync);
         }
         currentPriority++;
         if(currentPriority >= MAX_PRIORITY){currentPriority = 0;}
-        sem_post(&sEmpty);
 
     }
     
@@ -124,10 +121,10 @@ void * producerFunc(void *id)
 {
     struct process *newProcess;
     int priority, pID = (*(int *)id);
-    while(produced < NUMBER_OF_JOBS)
+    while(consumed < NUMBER_OF_JOBS)
     {
         sem_wait(&sEmpty);
-        if(sumSizes() < MAX_BUFFER_SIZE)
+        if(sumSizes() < MAX_BUFFER_SIZE && produced < NUMBER_OF_JOBS)
         {
             newProcess = generateProcess();
             priority = newProcess -> iPriority;
@@ -135,13 +132,13 @@ void * producerFunc(void *id)
             {
                 sem_wait(&sSync);
                 addLast(newProcess, headArray[priority], tailArray[priority]);
+                produced++;
                 sem_post(&sSync);
                 queueSizes[priority]++;
-                produced++;
                 printf("Producer %d, Process Id = %d, Priority = %d (%s), Previous Burst Time = %d, Remaining Burst Time = %d\n", pID, newProcess->iProcessId, priority, newProcess->iPriority < MAX_PRIORITY / 2 ? "FCFS" : "RR", newProcess->iPreviousBurstTime, newProcess->iRemainingBurstTime);
             }
         }
-        if(produced < NUMBER_OF_JOBS){sem_post(&sFull);}
+        sem_post(&sFull);
     }
 }
 int main(int argc, char **argv)
