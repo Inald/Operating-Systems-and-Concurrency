@@ -10,7 +10,7 @@
 //Semaphores for sync, delaying consumer
 //Counting semaphore represents number of free elements (number of jobs not filled)
 sem_t sSync, sEmpty, sFull;
-int produced = 0, consumed = 0, dAverageResponseTime, dAverageTurnAroundTime;
+int produced = 0, consumed = 0, dAverageResponseTime, dAverageTurnAroundTime, count2 = 0;
 //Create head and tail pointers to pointers for the linked list
 // struct element *ptrH = NULL, *ptrT = NULL;
 // struct element **head = &ptrH, **tail = &ptrT;
@@ -62,13 +62,15 @@ struct process * processJob(int iConsumerId, struct process * pProcess, struct t
 
  void * consumerFunc(void *id)
  {
-     int count, cID = (*(int *) id), currentPriority = 0;
+     int count,cID = (*(int *) id), currentPriority = 0;
      struct process *firstProcess, *processRun; 
      struct timeval start, end;
-
      while(consumed < MAX_NUMBER_OF_JOBS)
      {
         sem_wait(&sFull);
+        if(consumed == MAX_NUMBER_OF_JOBS){
+            break;
+        }
         sem_wait(&sSync);
         for(int i = 0; i < MAX_PRIORITY; i++){
             if(headArray[i]){
@@ -94,6 +96,12 @@ struct process * processJob(int iConsumerId, struct process * pProcess, struct t
         //printf("consumer = %d\n", consumed);
         sem_post(&sSync);
         
+     }
+     if(count2 < 2){
+        sem_wait(&sSync);
+        sem_post(&sFull);
+        count2++;
+        sem_post(&sSync);
      }
      printf("Consumer finished = %d\n", cID);
 }
