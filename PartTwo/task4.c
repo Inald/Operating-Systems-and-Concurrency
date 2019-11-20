@@ -96,9 +96,7 @@ void * consumerFunc(void *id)
             sem_post(&sSync);
             if(firstProcess)
             {
-                printf("Test 3\n");
                 runJob(firstProcess, &start, &end);
-                printf("Test 4\n");
                 sem_post(&sSync);
                 sem_wait(&sSync);
                 runProcess = processJob(cID, firstProcess, start, end);
@@ -110,7 +108,6 @@ void * consumerFunc(void *id)
                 {
                     consumed++;
                     queueSizes[currentPriority]--;
-                    printf("consumed = %d\n",consumed);
                 }
                 sem_post(&sSync);
             }
@@ -120,6 +117,7 @@ void * consumerFunc(void *id)
         {
             currentPriority = 0;
         }
+        printSems();
         sem_post(&sEmpty);
     }
     
@@ -128,7 +126,7 @@ void * producerFunc()
 {
     struct process *newProcess;
     int priority;
-    while(produced < NUMBER_OF_JOBS)
+    while(consumed < NUMBER_OF_JOBS)
     {
         sem_wait(&sEmpty);
         if(sumSizes() < MAX_BUFFER_SIZE && produced < NUMBER_OF_JOBS)
