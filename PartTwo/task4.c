@@ -9,8 +9,8 @@
 
 //Semaphores for sync, delaying consumer
 //Full and empty counting semaphores
-sem_t sSync, sSyncPrint, sDelayProducer, sFull, sEmpty;
-int produced = 0, consumed = 0, producerAwake = 0;
+sem_t sSync, sEmpty, sFull;
+int produced = 0, consumed = 0;
 int dAverageResponseTime = 0;
 int dAverageTurnAroundTime = 0;
 //Represent MAX_PRIORITY amount of buffers in a array of linked lists
@@ -23,6 +23,31 @@ double calcAverage(int sum, int n)
   return ((double)sum/(double)n);
 }
 
+void printSizes()
+{
+    for(int i = 0; i < MAX_PRIORITY; i++)
+    {
+        printf("%d ", queueSizes[i]);
+    }
+    printf("\n");
+}
+int sumSizes()
+{
+    int sum = 0;
+    for(int i = 0; i < MAX_PRIORITY; i++)
+    {
+        sum += queueSizes[i];
+    }
+    return sum;
+}
+
+void printSems()
+{
+    int sema, semb;
+    sem_getvalue(&sFull, &sema);
+    sem_getvalue(&sEmpty, &semb);
+    printf("Full = %d, Empty = %d\n", sema, semb);
+}
 struct process * processJob(int iConsumerId, struct process * pProcess, struct timeval oStartTime, struct timeval oEndTime)
 {
 	int iResponseTime;
@@ -58,81 +83,77 @@ struct process * processJob(int iConsumerId, struct process * pProcess, struct t
 
 void * consumerFunc(void *id)
 {
-    int cID = *((int*)id), currentPriority = 0; 
+    int count, currentPriority = 0, cID = (*(int *)id);
     struct process *firstProcess;
     struct timeval start, end;
     while(consumed < NUMBER_OF_JOBS)
     {
+        sem_wait(&sFull);
         sem_wait(&sSync);
-        if(*headArray[currentPriority])
+        firstProcess = removeFirst(headArray[currentPriority], tailArray[currentPriority]);
+        sem_post(&sSync);
+        sem_post(&sEmpty);
+        if(firstProcess)
         {
-            firstProcess = removeFirst(headArray[currentPriority], tailArray[currentPriority]);
-            start = firstProcess->oTimeCreated;
-            end = firstProcess->oMostRecentTime;
+            start = firstProcess -> oTimeCreated;
+            end = firstProcess -> oMostRecentTime;
             runJob(firstProcess, &start, &end);
             firstProcess = processJob(cID, firstProcess, start, end);
             if(firstProcess)
             {
+                sem_wait(&sSync);
                 addLast(firstProcess, headArray[currentPriority], tailArray[currentPriority]);
+                sem_post(&sSync);
             }
             else
             {
                 consumed++;
                 queueSizes[currentPriority]--;
             }
-            currentPriority++;
-            if(currentPriority >= MAX_PRIORITY)
-            {
-                currentPriority = 0;
-            }
+            
         }
-        sem_post(&sSync);    
+        currentPriority++;
+        if(currentPriority >= MAX_PRIORITY){currentPriority = 0;}
     }
+    
 }
-
-
-void * producerFunc(void *id)
+void * producerFunc()
 {
-    int pID = (*(int *)id), priority;
     struct process *newProcess;
+    int priority;
     while(produced < NUMBER_OF_JOBS)
     {
-        sem_wait(&sSync);
         newProcess = generateProcess();
         priority = newProcess -> iPriority;
-        if(*headArray[priority] && queueSizes[priority] < MAX_BUFFER_SIZE)
-        {
-            addLast(newProcess, headArray[priority], tailArray[priority]);
-            queueSizes[priority]++;
-            produced++;
-        }
+        sem_wait(&sEmpty);
+        sem_wait(&sSync);
+        addLast(newProcess, headArray[priority], tailArray[priority]);
         sem_post(&sSync);
+        sem_post(&sFull);
+        produced++;
+        queueSizes[priority]++;
     }
 }
 int main(int argc, char **argv)
-{
+{ 
     pthread_t consumer, producer;
-    int finalSync, finalFull, finalEmpty;
+    int finalSync, finalEmpty, finalFull;
+    sem_init(&sSync, 0 , 1);
+    sem_init(&sEmpty, 0, MAX_BUFFER_SIZE);
+    sem_init(&sFull, 0, 0);
     for(int i = 0; i < MAX_PRIORITY; i++)
     {
-        headArray[i] = tailArray[i] = malloc(sizeof(struct element));
+        headArray[i] = tailArray[i] = calloc(1, sizeof(struct element *));
         queueSizes[i] = 0;
     }
-    sem_init(&sSync, 0 , 1);
-    sem_init(&sSyncPrint, 0, 1);
-    sem_init(&sFull, 0, 0);
-    sem_init(&sEmpty, 0, MAX_PRIORITY);
     //Create producer and consumers
-    for(int i = 0; i < NUMBER_OF_PRODUCERS; i++)
-    {
-        pthread_create(&producer, NULL, producerFunc, (void *)&i);
-    }
+    pthread_create(&producer, NULL, producerFunc, NULL);
     for(int i = 0; i < NUMBER_OF_CONSUMERS; i++)
     {
         pthread_create(&consumer, NULL, consumerFunc, (void *)&i);
     }
-    pthread_join(producer, NULL);
     pthread_join(consumer, NULL);
+    pthread_join(producer, NULL);
     //Final values of semapores
     sem_getvalue(&sSync, &finalSync);
     sem_getvalue(&sFull, &finalFull);
