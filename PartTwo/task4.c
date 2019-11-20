@@ -23,24 +23,6 @@ double calcAverage(int sum, int n)
   return ((double)sum/(double)n);
 }
 
-void printSizes()
-{
-    for(int i = 0; i < MAX_PRIORITY; i++)
-    {
-        printf("%d ", queueSizes[i]);
-    }
-    printf("\n");
-}
-int sumSizes()
-{
-    int sum = 0;
-    for(int i = 0; i < MAX_PRIORITY; i++)
-    {
-        sum += queueSizes[i];
-    }
-    return sum;
-}
-
 void printSems()
 {
     int sema, semb;

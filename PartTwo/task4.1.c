@@ -90,10 +90,10 @@ struct process * processJob(int iConsumerId, struct process * pProcess, struct t
 }
 
 
-void * producerFunc()
+void * producerFunc(void *id)
 {
     struct process *newProcess;
-    int count, pID = 1;
+    int count, pID = (*(int *)id);
     
     while(produced < MAX_NUMBER_OF_JOBS)
     {
@@ -102,6 +102,7 @@ void * producerFunc()
         newProcess = generateProcess();
         addLast(newProcess, &headArray[newProcess -> iPriority], &tailArray[newProcess -> iPriority]);
         produced++;
+        printf("Producer %d, Process Id = %d, Priority = %d (%s), Initial Burst Time = %d\n", pID, newProcess->iProcessId, newProcess->iPriority, newProcess->iPriority < MAX_PRIORITY / 2 ? "FCFS" : "RR", newProcess->iInitialBurstTime);
         sem_post(&sSync);
         sem_post(&sFull);
     }
@@ -110,11 +111,11 @@ void * producerFunc()
 int main(int argc, char **argv)
 {
     pthread_t consumer[NUMBER_OF_CONSUMERS], producer;
-    int finalSync, finalEmpty, finalFull, conIds[NUMBER_OF_CONSUMERS];
+    int finalSync, finalEmpty, finalFull, producerID = 0, conIds[NUMBER_OF_CONSUMERS];
     sem_init(&sSync, 0 , 1);
     sem_init(&sEmpty, 0 , MAX_BUFFER_SIZE);
     sem_init(&sFull, 0, 0);
-    pthread_create(&producer, NULL, producerFunc, NULL);
+    pthread_create(&producer, NULL, producerFunc, &producerID);
     for(int i = 0; i < NUMBER_OF_CONSUMERS; i++)
     {
         conIds[i] = i;
