@@ -8,25 +8,12 @@
 #include "linkedlist.h"
 
 //Semaphores for sync, delaying consumer
-//Counting semaphore represents number of free elements (number of jobs not filled)
 sem_t sSync, sEmpty, sFull;
-int produced = 0, consumed = 0, dAverageResponseTime, dAverageTurnAroundTime;
-//Create head and tail pointers to pointers for the linked list
-// struct element *ptrH = NULL, *ptrT = NULL;
-// struct element **head = &ptrH, **tail = &ptrT;
+int produced = 0, consumed = 0, dAverageResponseTime, dAverageTurnAroundTime, finishedCount = 0;
 struct element *headArray[MAX_PRIORITY], *tailArray[MAX_PRIORITY];
-int bufferCount = 0;
 double calcAverage(int sum, int n)
 {
   return ((double)sum/(double)n);
-}
-
-void printSems()
-{
-    int sema, semb;
-    sem_getvalue(&sFull, &sema);
-    sem_getvalue(&sEmpty, &semb);
-    printf("Full = %d, Empty = %d\n", sema, semb);
 }
 struct process * processJob(int iConsumerId, struct process * pProcess, struct timeval oStartTime, struct timeval oEndTime)
 {
@@ -37,7 +24,7 @@ struct process * processJob(int iConsumerId, struct process * pProcess, struct t
 		iResponseTime = getDifferenceInMilliSeconds(pProcess->oTimeCreated, oStartTime);	
 		dAverageResponseTime += iResponseTime;
 		printf("Consumer %d, Process Id = %d (%s), Priority = %d, Previous Burst Time = %d, Remaining Burst Time = %d, Response Time = %d\n", iConsumerId, pProcess->iProcessId, pProcess->iPriority < MAX_PRIORITY / 2	 ? "FCFS" : "RR",pProcess->iPriority, pProcess->iPreviousBurstTime, pProcess->iRemainingBurstTime, iResponseTime);
-		return pProcess;
+        return pProcess;
 	} else if(pProcess->iPreviousBurstTime == pProcess->iInitialBurstTime && pProcess->iRemainingBurstTime == 0)
 	{
 		iResponseTime = getDifferenceInMilliSeconds(pProcess->oTimeCreated, oStartTime);	
@@ -50,25 +37,24 @@ struct process * processJob(int iConsumerId, struct process * pProcess, struct t
 	} else if(pProcess->iPreviousBurstTime != pProcess->iInitialBurstTime && pProcess->iRemainingBurstTime > 0)
 	{
 		printf("Consumer %d, Process Id = %d (%s), Priority = %d, Previous Burst Time = %d, Remaining Burst Time = %d\n", iConsumerId, pProcess->iProcessId, pProcess->iPriority < MAX_PRIORITY / 2 ? "FCFS" : "RR", pProcess->iPriority, pProcess->iPreviousBurstTime, pProcess->iRemainingBurstTime);
-		return pProcess;
+        return pProcess;
 	} else if(pProcess->iPreviousBurstTime != pProcess->iInitialBurstTime && pProcess->iRemainingBurstTime == 0)
 	{
 		iTurnAroundTime = getDifferenceInMilliSeconds(pProcess->oTimeCreated, oEndTime);
 		dAverageTurnAroundTime += iTurnAroundTime;
 		printf("Consumer %d, Process Id = %d (%s), Priority = %d, Previous Burst Time = %d, Remaining Burst Time = %d, Turnaround Time = %d\n", iConsumerId, pProcess->iProcessId, pProcess->iPriority < MAX_PRIORITY / 2 ? "FCFS" : "RR", pProcess->iPriority, pProcess->iPreviousBurstTime, pProcess->iRemainingBurstTime, iTurnAroundTime);
 		free(pProcess);
-		return NULL;
+        return NULL;
 	}
 }
 
  void * consumerFunc(void *id)
  {
-     int count, cID = (*(int *) id), currentPriority = 0;
+     int count,cID = (*(int *) id), currentPriority = 0;
      struct process *firstProcess, *processRun; 
      struct timeval start, end;
      while(consumed < MAX_NUMBER_OF_JOBS)
      {
-        printSems();
         sem_wait(&sFull);
         sem_wait(&sSync);
         for(int i = 0; i < MAX_PRIORITY; i++){
@@ -79,22 +65,28 @@ struct process * processJob(int iConsumerId, struct process * pProcess, struct t
         }
         firstProcess = removeFirst(&headArray[currentPriority], &tailArray[currentPriority]);
         sem_post(&sSync);
-        //check for values of time
-        start = firstProcess -> oTimeCreated;
-        end = firstProcess -> oMostRecentTime; 
-        runJob(firstProcess, &start, &end);
-        sem_wait(&sSync);
-        processRun = processJob(cID, firstProcess, start, end);
-        if(processRun){
-            addLast(processRun, &headArray[currentPriority], &tailArray[currentPriority]);
-            sem_post(&sFull);
-        }else{
-            consumed++;
-            sem_post(&sEmpty);
+        if(firstProcess)
+        {
+            //check for values of time
+            sem_wait(&sSync);
+            runJob(firstProcess, &start, &end);
+            processRun = processJob(cID, firstProcess, start, end);
+            if(processRun){
+                addLast(processRun, &headArray[currentPriority], &tailArray[currentPriority]);
+                sem_post(&sFull);
+            }else{
+                consumed++;
+                sem_post(&sEmpty);
+            }
+            sem_post(&sSync);
         }
-        sem_post(&sSync);  
      }
-     printf("Consumer finished = %d\n", cID);
+     if(finishedCount < NUMBER_OF_CONSUMERS-1){
+        sem_wait(&sSync);
+        sem_post(&sFull);
+        finishedCount++;
+        sem_post(&sSync);
+     }
 }
 
 
@@ -105,7 +97,6 @@ void * producerFunc()
     
     while(produced < MAX_NUMBER_OF_JOBS)
     {
-        printSems();
         sem_wait(&sEmpty);
         sem_wait(&sSync);
         newProcess = generateProcess();
@@ -118,19 +109,22 @@ void * producerFunc()
 
 int main(int argc, char **argv)
 {
-    pthread_t consumer1, consumer2, consumer3, producer;
-    int finalSync, finalEmpty, finalFull, id = 0;
+    pthread_t consumer[NUMBER_OF_CONSUMERS], producer;
+    int finalSync, finalEmpty, finalFull, conIds[NUMBER_OF_CONSUMERS];
     sem_init(&sSync, 0 , 1);
     sem_init(&sEmpty, 0 , MAX_BUFFER_SIZE);
     sem_init(&sFull, 0, 0);
     pthread_create(&producer, NULL, producerFunc, NULL);
-    pthread_create(&consumer1, NULL, producerFunc, (void *)1);
-    pthread_create(&consumer2, NULL, producerFunc, (void *)2);
-    pthread_create(&consumer3, NULL, producerFunc, (void *)3);
+    for(int i = 0; i < NUMBER_OF_CONSUMERS; i++)
+    {
+        conIds[i] = i;
+        pthread_create(&consumer[i], NULL, consumerFunc, &conIds[i]);
+    }
+    for(int j = 0; j < NUMBER_OF_CONSUMERS; j++)
+    {
+        pthread_join(consumer[j], NULL);
+    }
     pthread_join(producer, NULL);
-    pthread_join(consumer1, NULL);
-    pthread_join(consumer2, NULL);
-    pthread_join(consumer3, NULL);
     //Final values of semapores
     sem_getvalue(&sSync, &finalSync);
     sem_getvalue(&sEmpty, &finalEmpty);
