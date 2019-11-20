@@ -65,19 +65,9 @@ struct process * processJob(int iConsumerId, struct process * pProcess, struct t
      int count, cID = (*(int *) id), currentPriority = 0;
      struct process *firstProcess, *processRun; 
      struct timeval start, end;
+
      while(consumed < MAX_NUMBER_OF_JOBS)
      {
-<<<<<<< HEAD
-        sem_getvalue(&sFull, &count);
-        // if(consumed  MAX_NUMBER_OF_JOBS){
-            
-        //     break;
-        // }
-        if(count <= 3 && consumed >= MAX_NUMBER_OF_JOBS - 3){
-            sem_post(&sFull);
-        }
-=======
->>>>>>> 9342c3427056310c21c44c83c1e44208597ca397
         sem_wait(&sFull);
         sem_wait(&sSync);
         for(int i = 0; i < MAX_PRIORITY; i++){
@@ -101,13 +91,9 @@ struct process * processJob(int iConsumerId, struct process * pProcess, struct t
             consumed++;
             sem_post(&sEmpty);
         }
-<<<<<<< HEAD
         //printf("consumer = %d\n", consumed);
         sem_post(&sSync);
         
-=======
-        sem_post(&sSync);    
->>>>>>> 9342c3427056310c21c44c83c1e44208597ca397
      }
      printf("Consumer finished = %d\n", cID);
 }
@@ -133,38 +119,22 @@ void * producerFunc()
 
 int main(int argc, char **argv)
 {
-<<<<<<< HEAD
-    pthread_t consumer1, consumer2, consumer3, producer;
-=======
     pthread_t consumer[NUMBER_OF_CONSUMERS], producer;
->>>>>>> 9342c3427056310c21c44c83c1e44208597ca397
     int finalSync, finalEmpty, finalFull, id = 0;
     sem_init(&sSync, 0 , 1);
     sem_init(&sEmpty, 0 , MAX_BUFFER_SIZE);
     sem_init(&sFull, 0, 0);
     pthread_create(&producer, NULL, producerFunc, NULL);
 
-<<<<<<< HEAD
-         pthread_create(&consumer1, NULL, consumerFunc, &id);
-         id++;
-         pthread_create(&consumer2, NULL, consumerFunc, &id);
-         id++;
-         pthread_create(&consumer3, NULL, consumerFunc, &id);
-         id++;
-
-
-    pthread_join(producer, NULL);
-    pthread_join(consumer1, NULL);
-    pthread_join(consumer2, NULL);
-    pthread_join(consumer3, NULL);
-=======
     for(int i = 0; i < NUMBER_OF_CONSUMERS; i++){
-        id++;
         pthread_create(&consumer[i], NULL, consumerFunc, &id);
-        pthread_join(consumer[i], NULL);
+        id++;
     }
+
     pthread_join(producer, NULL);
->>>>>>> 9342c3427056310c21c44c83c1e44208597ca397
+    pthread_join(consumer[0], NULL);
+    pthread_join(consumer[1], NULL);
+    pthread_join(consumer[2], NULL);
     //Final values of semapores
     sem_getvalue(&sSync, &finalSync);
     sem_getvalue(&sEmpty, &finalEmpty);
