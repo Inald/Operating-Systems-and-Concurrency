@@ -17,11 +17,14 @@
 #define MAX_PRIORITY 32
 
 #define MAX_BUFFER_SIZE 10
+
 #define MAX_NUMBER_OF_JOBS NUMBER_OF_JOBS
 
 #define NUMBER_OF_PRODUCERS 1
 
 #define NUMBER_OF_CONSUMERS 3
+
+#define BOOST_INTERVAL 50
 
 /* 
  * Definition of the structure containing the process characteristics. These should be sufficient for the full implementation of all tasks.

@@ -7,7 +7,6 @@
 #include "coursework.h"
 #include "linkedlist.h"
 
-//Semaphores for sync, delaying consumer
 sem_t sSync, sEmpty, sFull;
 int produced = 0, consumed = 0, dAverageResponseTime, dAverageTurnAroundTime, finishedCount = 0;
 struct element *headArray[MAX_PRIORITY], *tailArray[MAX_PRIORITY];

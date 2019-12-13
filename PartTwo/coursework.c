@@ -64,9 +64,10 @@ void runJob(struct process * pTemp, struct timeval * oStartTime, struct timeval 
  */
 void runNonPreemptiveJob(struct process * pTemp, struct timeval * oStartTime, struct timeval * oEndTime)
 {
-	long int iDifference = 0;
-	runProcess(pTemp, pTemp->iInitialBurstTime, oStartTime, oEndTime);
-	pTemp->iRemainingBurstTime = 0;
+	pTemp->iPreviousBurstTime = pTemp->iRemainingBurstTime;
+	runProcess(pTemp, pTemp->iRemainingBurstTime, oStartTime, oEndTime);
+	long int iDifference = getDifferenceInMilliSeconds(*oStartTime, *oEndTime);
+	pTemp->iRemainingBurstTime = iDifference < pTemp->iRemainingBurstTime ? pTemp->iRemainingBurstTime - iDifference : 0;
 }
 
 /*
