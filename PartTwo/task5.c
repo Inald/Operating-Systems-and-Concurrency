@@ -141,8 +141,8 @@ void * producerFunc(void *id)
         produced++;
         avgDuration = calcAverage(duration, produced);
         printf("Producer %d, Process Id = %d, Priority = %d (%s), Initial Burst Time = %d\n", pID, newProcess->iProcessId, newProcess->iPriority, newProcess->iPriority < MAX_PRIORITY / 2 ? "FCFS" : "RR", newProcess->iInitialBurstTime);
-        sleep(avgDuration/1000);
-        if(newProcess -> iPriority < MAX_PRIORITY/2){testLowerPriorityFCFS(newProcess);}        
+        if(newProcess -> iPriority < MAX_PRIORITY/2){testLowerPriorityFCFS(newProcess);}
+        sleep(avgDuration/1000);        
         sem_post(&sSync);
         sem_post(&sFull);
     }
@@ -151,15 +151,14 @@ void * producerFunc(void *id)
 void * boosterFunc()
 {
     struct process *checkProcess;
-    int currentPriority = MAX_PRIORITY/2;
     int highestPriority = MAX_PRIORITY/2;
     struct timeval mostRecent, current;
     while(consumed < MAX_NUMBER_OF_JOBS)
     {
         sem_wait(&sSync);
-        while(currentPriority < MAX_PRIORITY)
+        for(int i = MAX_PRIORITY/2; i < MAX_PRIORITY; i++)
         {
-            checkProcess = removeFirst(&headArray[currentPriority], &tailArray[currentPriority]);
+            checkProcess = removeFirst(&headArray[i], &tailArray[i]);
             if(checkProcess)
             {
                 mostRecent = checkProcess -> oMostRecentTime;
@@ -168,14 +167,14 @@ void * boosterFunc()
                 {
                     printf("Boost priority: Process ID = %d, Priority = %d, New Priority = %d\n", checkProcess -> iProcessId, checkProcess -> iPriority, highestPriority);
                     checkProcess -> iPriority = highestPriority;
+                    checkProcess -> oMostRecentTime = current;
                     addFirst(checkProcess, &headArray[highestPriority], &tailArray[highestPriority]);
                 }
                 else
                 {
-                    addFirst(checkProcess, &headArray[currentPriority], &tailArray[currentPriority]);
+                    addFirst(checkProcess, &headArray[i], &tailArray[i]);
                 }
             }
-            currentPriority++;
         }
         sem_post(&sSync);
     }
