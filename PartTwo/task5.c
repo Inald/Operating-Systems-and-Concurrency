@@ -104,8 +104,8 @@ struct process * processJob(int iConsumerId, struct process * pProcess, struct t
             //check for values of time
             sem_wait(&sSync);
             runJob(firstProcess, &start, &end);
-            runningProcesses[cID] = firstProcess;
             processRun = processJob(cID, firstProcess, start, end);
+            runningProcesses[cID] = firstProcess;
             if(processRun){
                 addLast(processRun, &headArray[currentPriority], &tailArray[currentPriority]);
                 sem_post(&sFull);
