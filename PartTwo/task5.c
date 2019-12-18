@@ -150,16 +150,16 @@ void * boosterFunc()
     struct process *checkProcess;
     int currentPriority = MAX_PRIORITY/2;
     int highestPriority = MAX_PRIORITY/2;
-    struct timeval start, current;
+    struct timeval mostRecent, current;
     while(consumed < MAX_NUMBER_OF_JOBS)
     {
         sem_wait(&sSync);
         checkProcess = removeFirst(&headArray[currentPriority], &tailArray[currentPriority]);
         if(checkProcess)
         {
-            start = checkProcess -> oTimeCreated;
-            current = checkProcess -> oMostRecentTime;
-            if(getDifferenceInMilliSeconds(start, current) >= BOOST_INTERVAL)
+            mostRecent = checkProcess -> oMostRecentTime;
+            gettimeofday(&current, NULL);
+            if(getDifferenceInMilliSeconds(mostRecent, current) >= BOOST_INTERVAL)
             {
                 printf("Boost priority: Process ID = %d, Priority = %d, New Priority = %d\n", checkProcess -> iProcessId, checkProcess -> iPriority, highestPriority);
                 checkProcess -> iPriority = highestPriority;
@@ -176,7 +176,6 @@ void * boosterFunc()
             currentPriority = MAX_PRIORITY/2;
         }
         sem_post(&sSync);
-
     }
 }
 
