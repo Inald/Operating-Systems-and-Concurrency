@@ -154,26 +154,25 @@ void * boosterFunc()
     while(consumed < MAX_NUMBER_OF_JOBS)
     {
         sem_wait(&sSync);
-        checkProcess = removeFirst(&headArray[currentPriority], &tailArray[currentPriority]);
-        if(checkProcess)
+        while(currentPriority < MAX_PRIORITY)
         {
-            mostRecent = checkProcess -> oMostRecentTime;
-            gettimeofday(&current, NULL);
-            if(getDifferenceInMilliSeconds(mostRecent, current) >= BOOST_INTERVAL)
+            checkProcess = removeFirst(&headArray[currentPriority], &tailArray[currentPriority]);
+            if(checkProcess)
             {
-                printf("Boost priority: Process ID = %d, Priority = %d, New Priority = %d\n", checkProcess -> iProcessId, checkProcess -> iPriority, highestPriority);
-                checkProcess -> iPriority = highestPriority;
-                addFirst(checkProcess, &headArray[highestPriority], &tailArray[highestPriority]);
+                mostRecent = checkProcess -> oMostRecentTime;
+                gettimeofday(&current, NULL);
+                if(getDifferenceInMilliSeconds(mostRecent, current) >= BOOST_INTERVAL)
+                {
+                    printf("Boost priority: Process ID = %d, Priority = %d, New Priority = %d\n", checkProcess -> iProcessId, checkProcess -> iPriority, highestPriority);
+                    checkProcess -> iPriority = highestPriority;
+                    addFirst(checkProcess, &headArray[highestPriority], &tailArray[highestPriority]);
+                }
+                else
+                {
+                    addFirst(checkProcess, &headArray[currentPriority], &tailArray[currentPriority]);
+                }
             }
-            else
-            {
-                addFirst(checkProcess, &headArray[currentPriority], &tailArray[currentPriority]);
-            }
-        }
-        currentPriority++;
-        if(currentPriority >= MAX_PRIORITY)
-        {
-            currentPriority = MAX_PRIORITY/2;
+            currentPriority++;
         }
         sem_post(&sSync);
     }
