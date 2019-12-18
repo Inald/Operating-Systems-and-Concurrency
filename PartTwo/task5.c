@@ -103,9 +103,9 @@ struct process * processJob(int iConsumerId, struct process * pProcess, struct t
         {
             //check for values of time
             sem_wait(&sSync);
+            runningProcesses[cID] = firstProcess;
             runJob(firstProcess, &start, &end);
             processRun = processJob(cID, firstProcess, start, end);
-            runningProcesses[cID] = firstProcess;
             if(processRun){
                 addLast(processRun, &headArray[currentPriority], &tailArray[currentPriority]);
                 sem_post(&sFull);
@@ -130,15 +130,18 @@ void * producerFunc(void *id)
 {
     struct process *newProcess;
     int count, pID = (*(int *)id);
-    
+    int duration = 0, avgDuration = 0;
     while(produced < MAX_NUMBER_OF_JOBS)
     {
         sem_wait(&sEmpty);
         sem_wait(&sSync);
         newProcess = generateProcess();
         addLast(newProcess, &headArray[newProcess -> iPriority], &tailArray[newProcess -> iPriority]);
+        duration += newProcess -> iInitialBurstTime;
         produced++;
+        avgDuration = calcAverage(duration, produced);
         printf("Producer %d, Process Id = %d, Priority = %d (%s), Initial Burst Time = %d\n", pID, newProcess->iProcessId, newProcess->iPriority, newProcess->iPriority < MAX_PRIORITY / 2 ? "FCFS" : "RR", newProcess->iInitialBurstTime);
+        sleep(avgDuration/1000);
         if(newProcess -> iPriority < MAX_PRIORITY/2){testLowerPriorityFCFS(newProcess);}        
         sem_post(&sSync);
         sem_post(&sFull);
