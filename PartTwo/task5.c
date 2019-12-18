@@ -10,6 +10,8 @@
 //Semaphores for sync, delaying consumer
 sem_t sSync, sEmpty, sFull;
 int produced = 0, consumed = 0, dAverageResponseTime, dAverageTurnAroundTime, finishedCount = 0;
+int totalLength = 0;
+double averageLength = 0;
 struct element *headArray[MAX_PRIORITY], *tailArray[MAX_PRIORITY];
 struct process *runningProcesses[NUMBER_OF_CONSUMERS];
 double calcAverage(int sum, int n)
@@ -20,24 +22,21 @@ double calcAverage(int sum, int n)
 struct process *lowestPriorityRunningProcesses()
 {
     struct process *lowestProcess = NULL;
-    int lowestPriority;
+    int lowestPriority = MAX_PRIORITY/2;
     for(int i = 0; i < NUMBER_OF_CONSUMERS - 1; i++)
     {
-        if(runningProcesses[i] && runningProcesses[i+1])
+        if(runningProcesses[i])
         {
-            if(runningProcesses[i] -> iPriority < runningProcesses[i+1] -> iPriority)
+            if(lowestPriority < runningProcesses[i] -> iPriority)
             {
-                lowestProcess = runningProcesses[i+1];
-            }
-            else
-            {
+                lowestPriority = runningProcesses[i] -> iPriority;
                 lowestProcess = runningProcesses[i];
             }
         }
     }
     return lowestProcess;
 }
-void testLowerPriorityFCFS(struct process* job)
+void testLowerPriorityFCFS(struct process *job)
 {
     struct process *process = lowestPriorityRunningProcesses();
     if(process)
@@ -47,7 +46,7 @@ void testLowerPriorityFCFS(struct process* job)
             preemptJob(process);
             printf("Pre-Empted Job: Pre-Empted Process ID = %d, Pre-Empted Priority = %d, New Process ID = %d\n", process ->iProcessId, process->iPriority, job->iProcessId);
 
-        }
+        }  
     }
 }
 struct process * processJob(int iConsumerId, struct process * pProcess, struct timeval oStartTime, struct timeval oEndTime)
@@ -112,10 +111,10 @@ struct process * processJob(int iConsumerId, struct process * pProcess, struct t
                 sem_post(&sFull);
             }else{
                 consumed++;
-                runningProcesses[cID] = NULL;
                 sem_post(&sEmpty);
             }
             sem_post(&sSync);
+            runningProcesses[cID] = NULL;
         }
      }
      if(finishedCount < NUMBER_OF_CONSUMERS-1){
