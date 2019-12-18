@@ -145,14 +145,50 @@ void * producerFunc(void *id)
     }
 }
 
+void * boosterFunc()
+{
+    struct process *checkProcess;
+    int currentPriority = MAX_PRIORITY/2;
+    int highestPriority = MAX_PRIORITY/2;
+    struct timeval start, current;
+    while(consumed < MAX_NUMBER_OF_JOBS)
+    {
+        sem_wait(&sSync);
+        checkProcess = removeFirst(&headArray[currentPriority], &tailArray[currentPriority]);
+        if(checkProcess)
+        {
+            start = checkProcess -> oTimeCreated;
+            current = checkProcess -> oMostRecentTime;
+            if(getDifferenceInMilliSeconds(start, current) >= BOOST_INTERVAL)
+            {
+                printf("Boost priority: Process ID = %d, Priority = %d, New Priority = %d\n", checkProcess -> iProcessId, checkProcess -> iPriority, highestPriority);
+                checkProcess -> iPriority = highestPriority;
+                addFirst(checkProcess, &headArray[highestPriority], &tailArray[highestPriority]);
+            }
+            else
+            {
+                addFirst(checkProcess, &headArray[currentPriority], &tailArray[currentPriority]);
+            }
+        }
+        currentPriority++;
+        if(currentPriority >= MAX_PRIORITY)
+        {
+            currentPriority = MAX_PRIORITY/2;
+        }
+        sem_post(&sSync);
+
+    }
+}
+
 int main(int argc, char **argv)
 {
-    pthread_t consumer[NUMBER_OF_CONSUMERS], producer;
+    pthread_t consumer[NUMBER_OF_CONSUMERS], producer, booster;
     int finalSync, finalEmpty, finalFull, producerID = 0, conIds[NUMBER_OF_CONSUMERS];
     sem_init(&sSync, 0 , 1);
     sem_init(&sEmpty, 0 , MAX_BUFFER_SIZE);
     sem_init(&sFull, 0, 0);
     pthread_create(&producer, NULL, producerFunc, &producerID);
+    pthread_create(&booster, NULL, boosterFunc, NULL);
     for(int i = 0; i < NUMBER_OF_CONSUMERS; i++)
     {
         conIds[i] = i;
@@ -163,6 +199,7 @@ int main(int argc, char **argv)
         pthread_join(consumer[j], NULL);
     }
     pthread_join(producer, NULL);
+    pthread_join(booster, NULL);
     //Final values of semapores
     sem_getvalue(&sSync, &finalSync);
     sem_getvalue(&sEmpty, &finalEmpty);
